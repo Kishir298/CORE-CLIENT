@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Test / coverage
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# In-place virtual environment (python -m venv .)
+/Lib/
+/Include/
+/pyvenv.cfg
+/Scripts/
+!scripts/
+!scripts/**
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# TLS material (never commit private keys or machine-specific trust files)
+*.key
+*.pfx
+*.p12
+*.crt
+*.cer
+*.pem
+!runtime/certificates/.gitkeep
+
+# Remembered external-device files (real device files live in home dir, never in git)
+.risarms-device.json
+*-device.json
+device.json
+
+# Runtime state / secrets
+runtime/*
+!runtime/certificates/
+!runtime/certificates/.gitkeep
+
+# Tool backups
+opencode.json.backup
+.aider*

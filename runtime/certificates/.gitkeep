@@ -1,0 +1,4 @@
+# This directory receives the C.O.R.E.-HOST public certificate at runtime.
+# Copy the host's public core.crt/core.pem here (or anywhere) and pass:
+#   python -m client --ca-file runtime/certificates/core.pem
+# Never commit private keys (*.key), PFX bundles (*.pfx), or machine-specific certs.

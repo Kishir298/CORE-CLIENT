@@ -185,7 +185,14 @@ class CoreDeviceClient:
         self.insecure = bool(insecure)
         self.timeout = float(timeout)
         # -- ephemeral session state (never persisted) --
-        self._token: str | None = None
+        # Provisioning credential: long-term secret, RAM only, used solely
+        # to authenticate at CORE_HANDSHAKE. Never confused with the
+        # temporary host-issued session token below.
+        self._provisioning_credential: str | None = None
+        # Temporary host-issued session token: exists only after successful
+        # authentication, RAM only, rotated every connection, destroyed on
+        # disconnect/expiry/shutdown. Never persisted.
+        self._session_token: str | None = None
         self._sock: socket.socket | None = None
         self._connection_id: str | None = None
         self._authenticated = False
@@ -248,14 +255,24 @@ class CoreDeviceClient:
 
     # -- login session (ephemeral) --
     def login(self, token: str) -> None:
-        """Begin a login session. Token is kept in memory only."""
+        """Begin a login session. Provisioning credential, memory only."""
         if not token or not str(token).strip():
             raise DeviceClientError("Login requires a non-empty token.")
-        self._token = str(token)
+        self._provisioning_credential = str(token)
+
+    @property
+    def _token(self) -> str | None:
+        """Backward-compatible alias for the provisioning credential."""
+        return self._provisioning_credential
+
+    @_token.setter
+    def _token(self, value: str | None) -> None:
+        self._provisioning_credential = value
 
     def logout(self) -> None:
         """Destroy the login session without touching the remembered device."""
-        self._token = None
+        self._provisioning_credential = None
+        self._session_token = None
         self._authenticated = False
         self._registered = False
         self._connection_id = None
@@ -266,13 +283,15 @@ class CoreDeviceClient:
     def mark_disconnected(self) -> None:
         """Mark this client disconnected after a (possibly forced) close.
 
-        Clears connection-scoped state (socket, connection_id, auth flags,
-        lease tracking) while preserving the remembered identity
-        (device_id/identity_id/join_name) and — if the application is still
-        running — the in-memory login token, so a fresh authenticated
-        reconnect remains possible per Option A semantics.
+        Clears connection-scoped state (socket, session token,
+        connection_id, auth flags, lease tracking) while preserving the
+        remembered identity (device_id/identity_id/join_name) and — if the
+        application is still running — the in-memory provisioning
+        credential, so a fresh authenticated reconnect remains possible
+        per Option A semantics. The expired session token is never reused.
         """
         self.close_socket()
+        self._session_token = None
         self._connection_id = None
         self._authenticated = False
         self._registered = False
@@ -282,7 +301,12 @@ class CoreDeviceClient:
 
     @property
     def is_logged_in(self) -> bool:
-        return self._token is not None
+        return self._provisioning_credential is not None
+
+    @property
+    def session_token(self) -> str | None:
+        """Temporary host-issued session token (RAM only, None when offline)."""
+        return self._session_token
 
     @property
     def connection_id(self) -> str | None:
@@ -320,6 +344,68 @@ class CoreDeviceClient:
             self._lease_expires_at = lease_expires_at
         if isinstance(lease_duration, int) and lease_duration > 0:
             self._lease_duration_seconds = lease_duration
+
+    def _track_session(self, payload: dict) -> None:
+        """Record the host-issued temporary session token (RAM only)."""
+        if not isinstance(payload, dict):
+            return
+        token = payload.get("session_token")
+        if isinstance(token, str) and token:
+            self._session_token = token
+
+    @staticmethod
+    def _format_duration(total_seconds: float) -> str:
+        total = max(0, int(total_seconds))
+        hours, rem = divmod(total, 3600)
+        minutes, seconds = divmod(rem, 60)
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
+    def lease_remaining_seconds(self, now: datetime | None = None) -> float | None:
+        """Seconds until the tracked lease expiry (None when unknown)."""
+        if not self._lease_expires_at:
+            return None
+        try:
+            expiry = datetime.fromisoformat(self._lease_expires_at)
+        except Exception:
+            return None
+        if expiry.tzinfo is None:
+            expiry = expiry.replace(tzinfo=timezone.utc)
+        current = now or datetime.now(timezone.utc)
+        return (expiry - current).total_seconds()
+
+    @property
+    def lease_state(self) -> str:
+        """Local UX lease state; the host remains authoritative."""
+        if self._sock is None or not self._authenticated:
+            return "DISCONNECTED"
+        if not self._registered:
+            return "AUTHENTICATED"
+        remaining = self.lease_remaining_seconds()
+        if remaining is None:
+            return "ONLINE"
+        if remaining <= 0:
+            return "EXPIRED"
+        if remaining <= 5 * 60:
+            return "EXPIRING"
+        return "ONLINE"
+
+    def session_summary(self) -> dict:
+        """In-memory session snapshot for display (never persisted)."""
+        remaining = self.lease_remaining_seconds()
+        return {
+            "device": self.device_name,
+            "device_id": self.device_id,
+            "join_name": self.join_name,
+            "status": self.lease_state,
+            "connection_id": self._connection_id,
+            "session_token": self._session_token,
+            "lease_duration_seconds": self._lease_duration_seconds,
+            "connected_at": self._connected_at,
+            "lease_expires_at": self._lease_expires_at,
+            "lease_remaining": (
+                self._format_duration(remaining) if remaining is not None else None
+            ),
+        }
 
     @staticmethod
     def _is_closure_error(exc: Exception) -> bool:
@@ -411,30 +497,47 @@ class CoreDeviceClient:
             raise DeviceClientError("Authentication rejected by C.O.R.E. host.")
         payload = resp["payload"]
         self._connection_id = payload.get("connection_id")
+        self._session_token = None
         self._authenticated = True
         self._registered = False
         self._connected_at = None
         self._lease_expires_at = None
         self._lease_duration_seconds = None
+        self._track_session(payload)
+        if not self._session_token:
+            self.close_socket()
+            self._authenticated = False
+            raise DeviceClientError("Host did not issue a session token.")
         self._track_lease(payload)
         return resp
+
+    def _authed_payload(self, extra: dict | None = None) -> dict:
+        """Payload carrier for the temporary session token (never secrets)."""
+        payload = dict(extra or {})
+        if self._session_token:
+            payload["_session_token"] = self._session_token
+        return payload
 
     def register(self) -> dict:
         if self._sock is None or not self._authenticated:
             raise DeviceClientError("Connect + handshake before DEVICE_REGISTER.")
+        if not self._session_token:
+            raise DeviceClientError("Active session token required.")
         msg = _new_message(
             source=self.identity_id,
             destination="core",
             message_type=REGISTER_TYPE,
-            payload={
-                "device_id": self.device_id,
-                "join_name": self.join_name,
-                "device_name": self.device_name,
-                "device_type": self.device_type,
-                "platform": self.platform,
-                "capabilities": list(self.capabilities),
-                "protocol_version": self.protocol_version,
-            },
+            payload=self._authed_payload(
+                {
+                    "device_id": self.device_id,
+                    "join_name": self.join_name,
+                    "device_name": self.device_name,
+                    "device_type": self.device_type,
+                    "platform": self.platform,
+                    "capabilities": list(self.capabilities),
+                    "protocol_version": self.protocol_version,
+                }
+            ),
             identity_id=self.identity_id,
         )
         try:
@@ -454,6 +557,7 @@ class CoreDeviceClient:
             raise DeviceClientError("Unexpected response to DEVICE_REGISTER.")
         self._registered = True
         if isinstance(resp.get("payload"), dict):
+            self._track_session(resp["payload"])
             self._track_lease(resp["payload"])
         return resp
 
@@ -467,7 +571,7 @@ class CoreDeviceClient:
                     source=self.identity_id,
                     destination="core",
                     message_type=DISCOVER_TYPE,
-                    payload={},
+                    payload=self._authed_payload(),
                     identity_id=self.identity_id,
                 ),
             )
@@ -478,15 +582,18 @@ class CoreDeviceClient:
             raise
 
     def reconnect(self) -> dict:
-        """Reconnect while the app stays open: same token, new connection_id."""
+        """Reconnect: same provisioning credential, brand-new session."""
         if not self.is_logged_in:
             raise DeviceClientError("Login required before reconnect.")
         old_id = self._connection_id
+        old_token = self._session_token
         old_lease = self._lease_expires_at
         resp = self.connect()
         reg = self.register()
         if old_id is not None and self._connection_id == old_id:
             raise DeviceClientError("Reconnect did not yield a new connection_id.")
+        if old_token is not None and self._session_token == old_token:
+            raise DeviceClientError("Reconnect did not yield a new session token.")
         if (
             old_lease is not None
             and self._lease_expires_at is not None
@@ -552,6 +659,44 @@ def build_parser() -> argparse.ArgumentParser:
         help="Save remembered device file (no secrets) and exit.",
     )
     return parser
+
+
+def _print_session_banner(client: "CoreDeviceClient") -> None:
+    """Display the active in-memory session (DISPLAYED, never persisted)."""
+    summary = client.session_summary()
+    bar = "╔" + "═" * 46 + "╗"
+    mid = "╠" + "═" * 46 + "╣"
+    end = "╚" + "═" * 46 + "╝"
+
+    def row(label: str, value: object) -> str:
+        text = f"║ {label:<14} {value}"
+        return text[:47] + "║"
+
+    print(bar)
+    print("║             R.I.S.A.R.M.S. CLIENT            ║")
+    print(mid)
+    print(row("Device:", summary["device"]))
+    print(row("Device ID:", summary["device_id"]))
+    print(row("Join Name:", summary["join_name"]))
+    print(row("Status:", summary["status"]))
+    print("║                                              ║")
+    print(row("Session Token:", summary["session_token"] or "<none>"))
+    print("║                                              ║")
+    print(row("Connection ID:", summary["connection_id"] or "<none>"))
+    duration = summary["lease_duration_seconds"]
+    hours = (duration // 3600) if isinstance(duration, int) else 24
+    print(row("Lease:", f"{hours:02d}:00:00"))
+    print(row("Expires:", summary["lease_expires_at"] or "<unknown>"))
+    print(end)
+
+
+def _print_session_line(client: "CoreDeviceClient") -> None:
+    summary = client.session_summary()
+    print(f"Status: {summary['status']}")
+    print(f"Connection ID: {summary['connection_id']}")
+    print(f"Session Token: {summary['session_token']}")
+    print(f"Lease: {summary['lease_remaining'] or '?'} remaining")
+    print(f"Expires: {summary['lease_expires_at']}")
 
 
 def main(argv: list | None = None) -> int:
@@ -620,10 +765,14 @@ def main(argv: list | None = None) -> int:
 
     try:
         hs = client.connect()
-        print(f"Authenticated (connection_id={hs['payload'].get('connection_id')}).")
-        reg = client.register()
-        print(f"Registered: {reg['payload']}. Status: online.")
-        print("Press Ctrl+C to disconnect (session ends; device stays remembered).")
+        print("Connecting to C.O.R.E...")
+        print("TLS established")
+        print("Authentication successful")
+        print("Session established")
+        client.register()
+        print("Device registered")
+        _print_session_banner(client)
+        print("Commands: discover | reconnect | session | quit")
         try:
             while True:
                 line = input("core-device> ").strip()
@@ -634,8 +783,11 @@ def main(argv: list | None = None) -> int:
                 elif line == "reconnect":
                     client.reconnect()
                     print(f"Reconnected (connection_id={client.connection_id}).")
+                    _print_session_banner(client)
+                elif line == "session":
+                    _print_session_line(client)
                 elif line:
-                    print("Commands: discover | reconnect | quit")
+                    print("Commands: discover | reconnect | session | quit")
         except KeyboardInterrupt:
             print()
     except DeviceClientError as exc:
@@ -643,7 +795,7 @@ def main(argv: list | None = None) -> int:
         return 1
     finally:
         client.shutdown()
-        print("Disconnected; login session cleared (device remains remembered).")
+        print("Disconnected; session token cleared (device remains remembered).")
     return 0
 
 

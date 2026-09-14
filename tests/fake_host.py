@@ -134,8 +134,12 @@ class FakeCoreHost:
             pass
 
     def _handle(self, conn: socket.socket) -> None:
+        import hmac
+        import secrets
+
         identity = None
         connection_id = None
+        session_token = None
         device = None
         # Short read timeout so a server-side forced close (lease expiry)
         # is noticed promptly even when the peer is idle: BSD/macOS does
@@ -162,6 +166,7 @@ class FakeCoreHost:
                     ):
                         identity = self.device_id
                         connection_id = str(uuid.uuid4())
+                        session_token = secrets.token_urlsafe(32)
                         connected_at, lease_expires_at = _lease_window(self.lease_seconds)
                         try:
                             send_frame(
@@ -170,7 +175,9 @@ class FakeCoreHost:
                                     identity,
                                     "CORE_HANDSHAKE_RESPONSE",
                                     {"authenticated": True, "identity_id": identity,
-                                     "connection_id": connection_id, "protocol_version": "0.3.0",
+                                     "connection_id": connection_id,
+                                     "session_token": session_token,
+                                     "protocol_version": "0.3.0",
                                      "connected_at": connected_at,
                                      "lease_expires_at": lease_expires_at,
                                      "lease_duration_seconds": self.lease_seconds},
@@ -196,6 +203,15 @@ class FakeCoreHost:
                 elif mtype == "DEVICE_REGISTER":
                     if identity is None:
                         self._error(conn, "DEVICE_NOT_REGISTERED", "Authenticate first.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_REGISTRATION_FAILED",
+                                    "Invalid session token.", msg)
                         continue
                     did = payload.get("device_id")
                     if did != identity:
@@ -243,6 +259,7 @@ class FakeCoreHost:
                                     "DEVICE_REGISTER_RESPONSE",
                                     {"registered": True, "device_id": did, "status": "online",
                                      "join_name": self.devices[did]["join_name"],
+                                     "session_token": session_token,
                                      "connected_at": self.devices[did]["connected_at"],
                                      "lease_expires_at": self.devices[did]["lease_expires_at"],
                                      "lease_duration_seconds": self.lease_seconds},
@@ -256,6 +273,15 @@ class FakeCoreHost:
                     if identity is None or device is None:
                         self._error(conn, "DEVICE_NOT_REGISTERED",
                                     "Register before discovery.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Invalid session token.", msg)
                         continue
                     with self._lock:
                         devices = [

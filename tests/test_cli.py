@@ -74,9 +74,10 @@ def test_full_cli_login_flow(tmp_path, capsys, monkeypatch):
                    "--token", "secret-mac-01", "--no-tls"])
         assert rc == 0
         out = capsys.readouterr().out
-        assert "Authenticated" in out
-        assert "Registered" in out
-        assert "login session cleared" in out
+        assert "Authentication successful" in out
+        assert "Session Token" in out
+        assert "mac-01" in out
+        assert "session token cleared" in out.lower()
     finally:
         host.stop()
 

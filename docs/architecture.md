@@ -23,13 +23,13 @@ server state and invents none.
 | `CoreDeviceClient` | Device identity + remembered state + ephemeral login session + wire |
 | `generate_join_name` | Stable `<device-name>-<short-device-id>` join name, secrets-free |
 | `remembered_state / save_remembered / load_remembered` | Persistent device file, secrets stripped |
-| `login / logout / is_logged_in` | Memory-only token session |
+| `login / logout / is_logged_in` | Memory-only provisioning credential |
 | `_build_tls_context` | TLS 1.2+, `CERT_REQUIRED` default, `CERT_NONE` only via `--insecure` |
 | `connect` | TCP (+TLS) + `CORE_HANDSHAKE`, enforces login-first, rejects weak TLS |
 | `register` | `DEVICE_REGISTER` after authentication |
 | `discover` | `DEVICE_DISCOVER` after registration |
-| `reconnect` | Same in-memory token, new `connection_id`, new lease |
-| `mark_disconnected` | Forced-close handling: clears connection state, keeps identity + token |
+| `reconnect` | Same provisioning credential, new `connection_id`, new session token, new lease |
+| `mark_disconnected` | Forced-close handling: clears session token + connection state, keeps identity + provisioning credential |
 | `close_socket / shutdown` | Clean disconnect; `shutdown` also destroys the login session |
 | `build_parser / main` | CLI: `--remember`, login, connect loop (`discover/reconnect/quit`) |
 
@@ -46,14 +46,21 @@ UTF-8 JSON envelope:
   "identity_id": "mac-01"}
  ```
 
- Sequence per connection:
+  Sequence per connection:
 
- ```text
- TCP connect → TLS handshake → CORE_HANDSHAKE → CORE_HANDSHAKE_RESPONSE
- {authenticated: true, connection_id, connected_at, lease_expires_at,
-  lease_duration_seconds} → DEVICE_REGISTER {…, join_name} →
- DEVICE_REGISTER_RESPONSE {registered: true, status: "online"} → online
- ```
+  ```text
+  TCP connect → TLS handshake → CORE_HANDSHAKE {credential: provisioning} →
+  CORE_HANDSHAKE_RESPONSE {authenticated: true, connection_id, session_token,
+   connected_at, lease_expires_at, lease_duration_seconds} →
+  DEVICE_REGISTER {…, join_name, _session_token} →
+  DEVICE_REGISTER_RESPONSE {registered: true, status: "online", session_token} →
+  online (application messages carry _session_token)
+  ```
+
+  `session_token` is a temporary host-issued credential
+  (`secrets.token_urlsafe(32)`), distinct from the provisioning credential
+  (used ONLY at handshake, never returned). It lives only in RAM on both
+  sides, rotates every connection, and is destroyed on disconnect/expiry.
 
 Errors arrive as `DEVICE_ERROR` envelopes
 (`DEVICE_ALREADY_REGISTERED`, `DEVICE_REGISTRATION_FAILED`,
@@ -62,21 +69,25 @@ Errors arrive as `DEVICE_ERROR` envelopes
 
  ## Identity model
 
- ```text
- device_id      stable device identity (remembered, e.g. "mac-01")
- identity_id    security identity, always bound to device_id
- join_name      stable human-readable label, e.g. "MacBook-mac-01"
-                (remembered; generated once as <device-name>-<short-device-id>)
- connection_id  one live socket session, host-issued, never persisted
- ```
+  ```text
+  device_id      stable device identity (remembered, e.g. "mac-01")
+  identity_id    security identity, always bound to device_id
+  join_name      stable human-readable label, e.g. "MacBook-mac-01"
+                 (remembered; generated once as <device-name>-<short-device-id>)
+  credential     long-term provisioning secret (RAM only, handshake only)
+  session_token  temporary host-issued secret (RAM only, per connection)
+  connection_id  one live socket session, host-issued, never persisted
+  ```
 
- Persistent device identity (`device_id`, `identity_id`, `join_name`,
- endpoint, non-secret metadata) lives in the remembered device file.
- Ephemeral session state (token, socket, `connection_id`, auth flags, lease
- tracking) lives in memory only and is destroyed on shutdown.
+  Persistent device identity (`device_id`, `identity_id`, `join_name`,
+  endpoint, non-secret metadata) lives in the remembered device file.
+  Ephemeral session state (provisioning credential, session token, socket,
+  `connection_id`, auth flags, lease tracking) lives in memory only and is
+  destroyed on shutdown. The session token is displayed while connected
+  but never persisted: DISPLAYED ≠ PERSISTED.
 
- Reconnect keeps `device_id`/`identity_id`/`join_name`, yields a new
- `connection_id` and a new 24-hour lease. Only one active connection per
+  Reconnect keeps `device_id`/`identity_id`/`join_name`, yields a new
+  `connection_id`, a new session token, and a new 24-hour lease. Only one active connection per
  device; a duplicate active `DEVICE_REGISTER` is rejected so a stale
  session can never hijack a live one.
 

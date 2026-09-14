@@ -13,10 +13,11 @@ import socket
 import struct
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 HEADER = 4
 MAX_FRAME = 10 * 1024 * 1024
+DEFAULT_LEASE_SECONDS = 24 * 60 * 60
 
 
 def send_frame(sock: socket.socket, message: dict) -> None:
@@ -47,6 +48,12 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _lease_window(lease_seconds: int) -> tuple[str, str]:
+    """Return (connected_at, lease_expires_at) ISO timestamps for a new lease."""
+    start = datetime.now(timezone.utc)
+    return start.isoformat(), (start + timedelta(seconds=lease_seconds)).isoformat()
+
+
 def _envelope(destination: str, message_type: str, payload: dict, request_id=None) -> dict:
     return {
         "message_id": str(uuid.uuid4()),
@@ -63,12 +70,19 @@ def _envelope(destination: str, message_type: str, payload: dict, request_id=Non
 class FakeCoreHost:
     """Minimal in-memory host: handshake auth, register, discover, presence."""
 
-    def __init__(self, token: str = "secret-mac-01", device_id: str = "mac-01") -> None:
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+    ) -> None:
         self.token = token
         self.device_id = device_id
+        self.lease_seconds = lease_seconds
         self.devices: dict = {}
         self._lock = threading.Lock()
         self._conns: set = set()
+        self._device_conns: dict = {}
         self._stop = threading.Event()
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -123,10 +137,16 @@ class FakeCoreHost:
         identity = None
         connection_id = None
         device = None
+        # Short read timeout so a server-side forced close (lease expiry)
+        # is noticed promptly even when the peer is idle: BSD/macOS does
+        # not reliably wake a thread blocked in recv() on close() alone.
+        conn.settimeout(0.5)
         try:
             while not self._stop.is_set():
                 try:
                     msg = recv_frame(conn)
+                except socket.timeout:
+                    continue
                 except (ConnectionError, OSError, ValueError):
                     break
                 if not isinstance(msg, dict) or not msg.get("message_type"):
@@ -142,6 +162,7 @@ class FakeCoreHost:
                     ):
                         identity = self.device_id
                         connection_id = str(uuid.uuid4())
+                        connected_at, lease_expires_at = _lease_window(self.lease_seconds)
                         try:
                             send_frame(
                                 conn,
@@ -149,7 +170,10 @@ class FakeCoreHost:
                                     identity,
                                     "CORE_HANDSHAKE_RESPONSE",
                                     {"authenticated": True, "identity_id": identity,
-                                     "connection_id": connection_id, "protocol_version": "0.3.0"},
+                                     "connection_id": connection_id, "protocol_version": "0.3.0",
+                                     "connected_at": connected_at,
+                                     "lease_expires_at": lease_expires_at,
+                                     "lease_duration_seconds": self.lease_seconds},
                                     msg.get("request_id"),
                                 ),
                             )
@@ -186,18 +210,26 @@ class FakeCoreHost:
                             and rec["connection_id"] != connection_id
                         )
                         if not dup:
+                            device_name = payload.get("device_name", did)
+                            join_name = payload.get("join_name") or f"{device_name}-{did}"
+                            connected_at, lease_expires_at = _lease_window(self.lease_seconds)
                             self.devices[did] = {
                                 "device_id": did,
                                 "identity_id": identity,
-                                "device_name": payload.get("device_name", did),
+                                "join_name": join_name,
+                                "device_name": device_name,
                                 "device_type": payload.get("device_type", "generic"),
                                 "platform": payload.get("platform", "mac"),
                                 "capabilities": list(payload.get("capabilities", [])),
                                 "protocol_version": payload.get("protocol_version", "0.3.0"),
                                 "status": "online",
                                 "connection_id": connection_id,
+                                "connected_at": connected_at,
+                                "lease_expires_at": lease_expires_at,
+                                "lease_duration_seconds": self.lease_seconds,
                                 "last_seen": _now(),
                             }
+                            self._device_conns[did] = conn
                             device = did
                     if dup:
                         self._error(conn, "DEVICE_ALREADY_REGISTERED",
@@ -209,7 +241,11 @@ class FakeCoreHost:
                                 _envelope(
                                     identity,
                                     "DEVICE_REGISTER_RESPONSE",
-                                    {"registered": True, "device_id": did, "status": "online"},
+                                    {"registered": True, "device_id": did, "status": "online",
+                                     "join_name": self.devices[did]["join_name"],
+                                     "connected_at": self.devices[did]["connected_at"],
+                                     "lease_expires_at": self.devices[did]["lease_expires_at"],
+                                     "lease_duration_seconds": self.lease_seconds},
                                     msg.get("request_id"),
                                 ),
                             )
@@ -223,7 +259,8 @@ class FakeCoreHost:
                         continue
                     with self._lock:
                         devices = [
-                            {"device_id": r["device_id"], "device_name": r["device_name"],
+                            {"device_id": r["device_id"], "join_name": r.get("join_name"),
+                             "device_name": r["device_name"],
                              "device_type": r["device_type"], "platform": r["platform"],
                              "capabilities": list(r["capabilities"]), "status": r["status"],
                              "last_seen": r["last_seen"]}
@@ -249,11 +286,34 @@ class FakeCoreHost:
                     self.devices[device]["status"] = "offline"
                     self.devices[device]["connection_id"] = None
                     self.devices[device]["last_seen"] = _now()
+                if device and self._device_conns.get(device) is conn:
+                    del self._device_conns[device]
                 self._conns.discard(conn)
             try:
                 conn.close()
             except OSError:
                 pass
+
+    def force_close(self, device_id: str) -> bool:
+        """Simulate a host-forced disconnect (e.g. lease expiry).
+
+        Closes the server side of the device's active connection; the
+        handler's cleanup marks the device offline, mirroring host
+        lease-expiry semantics. Returns True if a live connection existed.
+        """
+        with self._lock:
+            conn = self._device_conns.get(device_id)
+        if conn is None:
+            return False
+        try:
+            conn.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
+        try:
+            conn.close()
+        except OSError:
+            pass
+        return True
 
     def stop(self) -> None:
         self._stop.set()

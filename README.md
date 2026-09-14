@@ -71,12 +71,16 @@ reports `online`. Interactive commands: `discover | reconnect | quit`.
 
 ## Authentication (Option A)
 
-Persistent remembered state (`~/.risarms-device.json`) holds only:
+ Persistent remembered state (`~/.risarms-device.json`) holds only:
 
-```text
-device_id, identity_id, device_name, device_type, platform,
-capabilities, protocol_version, host, port
-```
+ ```text
+ device_id, identity_id, join_name, device_name, device_type, platform,
+ capabilities, protocol_version, host, port
+ ```
+
+ The `join_name` (e.g. `MacBook-mac-01`) is generated once at first
+ configuration, stays stable across reconnects and restarts, and contains
+ no secrets.
 
 It MUST NOT and does NOT contain: `token, credential, password,
 api_token, session, connection_id, authenticated`.
@@ -116,10 +120,19 @@ DEVICE_INFO / DEVICE_INFO_RESPONSE
 DEVICE_ERROR
 ```
 
-Identity model: `device_id` (stable) + `identity_id` (security, bound to
-`device_id`) stay constant; the host issues a fresh `connection_id` per
-connection. Duplicate active registration is rejected with
-`DEVICE_ALREADY_REGISTERED`. See `docs/architecture.md`.
+ Identity model: `device_id` (stable) + `identity_id` (security, bound to
+ `device_id`) + `join_name` (stable human-readable label) stay constant;
+ the host issues a fresh `connection_id` per connection. Duplicate active
+ registration is rejected with `DEVICE_ALREADY_REGISTERED`.
+ See `docs/architecture.md`.
+
+ ## Connection lease
+
+ Every connection carries a host-authoritative 24-hour lease
+ (`connected_at`, `lease_expires_at`, `lease_duration_seconds`). The
+ client tracks it locally; the host forcibly closes expired connections.
+ After a forced close the client marks itself disconnected (identity and
+ `join_name` preserved) and must log in + reconnect for a fresh lease.
 
 ## Project structure
 

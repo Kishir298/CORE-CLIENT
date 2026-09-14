@@ -3,7 +3,7 @@
 ## Status
 
 ```text
-AUTOMATED TESTING:       IMPLEMENTED (client suite 39 passed; host suite 661 passed, 3 skipped)
+AUTOMATED TESTING:       IMPLEMENTED (client suite 53 passed; host suite 670 passed)
 PHYSICAL LAN VALIDATION: NOT YET PERFORMED — do not claim otherwise
 ```
 
@@ -32,21 +32,26 @@ server private key is never copied.
 6. On the host: device shows `online`; record persists in `var/rescs.json`
    (identity fields + token; no `connection_id`, no live status).
 7. Quit the client → host marks `offline`, record retained.
-8. Launch again (login again) → `online`, same `device_id`/`identity_id`,
-   NEW `connection_id`.
-9. Wrong token → rejected, stays `offline`.
-10. Client restart → login required again; remembered device survives.
+ 8. Launch again (login again) → `online`, same `device_id`/`identity_id`,
+    same `join_name`, NEW `connection_id`, NEW 24-hour lease.
+ 9. Wrong token → rejected, stays `offline`.
+ 10. Client restart → login required again; remembered device (including
+     `join_name`) survives.
+ 11. Lease expiry is proven by the automated fake-clock tests, not by
+     waiting 24 hours physically.
 
-## Checklist (fill in during the physical test)
+ ## Checklist (fill in during the physical test)
 
-- [ ] TLS handshake succeeds Mac → Windows
-- [ ] `CORE_HANDSHAKE_RESPONSE.authenticated == true`
-- [ ] First `DEVICE_REGISTER` returns `status: online`
-- [ ] Host registry shows device `online`
-- [ ] Device record persists across host restart (restored `offline`)
-- [ ] Disconnect marks `offline`, record retained
-- [ ] Reconnect → `online`, same IDs, new `connection_id`
-- [ ] Wrong credential rejected, stays `offline`
-- [ ] Claiming another `device_id` rejected
-- [ ] Client restart requires login; device still remembered
-- [ ] No private key material ever copied to the Mac
+ - [ ] TLS handshake succeeds Mac → Windows
+ - [ ] `CORE_HANDSHAKE_RESPONSE.authenticated == true`
+ - [ ] Host log shows login attempt with `device_id` + `join_name`
+     (token visible only with `log_external_device_tokens: true`)
+ - [ ] First `DEVICE_REGISTER` returns `status: online`
+ - [ ] Host registry shows device `online` with `join_name` + lease fields
+ - [ ] Device record persists across host restart (restored `offline`)
+ - [ ] Disconnect marks `offline`, record retained
+ - [ ] Reconnect → `online`, same IDs, same `join_name`, new `connection_id`
+ - [ ] Wrong credential rejected, stays `offline`
+ - [ ] Claiming another `device_id` rejected
+ - [ ] Client restart requires login; device still remembered
+ - [ ] No private key material ever copied to the Mac

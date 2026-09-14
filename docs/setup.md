@@ -52,10 +52,12 @@ python3 -m client --remember \
   --host 192.168.1.67 --port 5000
 ```
 
-Verifies: file contains identity/endpoint fields only — no `token`,
-`connection_id`, or session values.
+ Verifies: file contains identity/endpoint fields only — no `token`,
+ `connection_id`, or session values. The client generates the stable
+ `join_name` (`MacBook-mac-01`) automatically; pass `--join-name` to set
+ it explicitly.
 
-## 5. Log in and connect (every launch)
+ ## 5. Log in and connect (every launch)
 
 ```bash
 python3 -m client \
@@ -71,17 +73,20 @@ Authenticated (connection_id=<uuid>).
 Registered: {'registered': True, 'device_id': 'mac-01', 'status': 'online'}. Status: online.
 ```
 
-Commands at `core-device>`: `discover`, `reconnect`, `quit`. Quitting (or
-`Ctrl+C`) prints `Disconnected; login session cleared (device remains
-remembered).` — the next launch requires login again.
+ Commands at `core-device>`: `discover`, `reconnect`, `quit`. Quitting (or
+ `Ctrl+C`) prints `Disconnected; login session cleared (device remains
+ remembered).` — the next launch requires login again. Each connection
+ carries a host-authoritative 24-hour lease; if the host closes an expired
+ connection, the client marks itself disconnected (identity and remembered
+ `join_name` preserved) and must log in and reconnect for a fresh lease.
 
-## 6. CLI reference
+ ## 6. CLI reference
 
-```text
---host --port --device-file --device-id --device-name --device-type
---platform --capabilities --token --remember
---ca-file --insecure --no-tls
-```
+ ```text
+ --host --port --device-file --device-id --device-name --join-name
+ --device-type --platform --capabilities --token --remember
+ --ca-file --insecure --no-tls
+ ```
 
 ## 7. Running tests
 

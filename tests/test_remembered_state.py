@@ -51,10 +51,11 @@ def test_remembered_state_shape(tmp_path):
     client = _make_client(tmp_path / "device.json")
     state = client.remembered_state()
     assert set(state) == {
-        "device_id", "identity_id", "device_name", "device_type",
+        "device_id", "identity_id", "join_name", "device_name", "device_type",
         "platform", "capabilities", "protocol_version", "host", "port",
     }
     assert state["identity_id"] == state["device_id"]
+    assert state["join_name"] == "MacBook-mac-01"
 
 
 def test_load_roundtrip_preserves_device(tmp_path):

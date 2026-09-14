@@ -81,8 +81,13 @@ def test_register_response_shape_and_registry(tmp_path):
         client.connect()
         resp = client.register()
         assert resp["message_type"] == "DEVICE_REGISTER_RESPONSE"
-        assert resp["payload"] == {"registered": True, "device_id": "mac-01",
-                                   "status": "online"}
+        assert resp["payload"]["registered"] is True
+        assert resp["payload"]["device_id"] == "mac-01"
+        assert resp["payload"]["status"] == "online"
+        assert resp["payload"]["join_name"] == "MacBook-mac-01"
+        assert resp["payload"]["lease_duration_seconds"] == 24 * 60 * 60
+        assert resp["payload"]["connected_at"]
+        assert resp["payload"]["lease_expires_at"]
         record = host.get("mac-01")
         assert record["status"] == "online"
         assert record["device_id"] == "mac-01"

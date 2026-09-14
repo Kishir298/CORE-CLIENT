@@ -9,14 +9,20 @@ Protocol (matches TcpTransport hardened path):
 
 OPTION A behavior:
     Persistent (remembered device file, no secrets):
-        device_id, identity_id, device_name, device_type, platform,
-        capabilities, protocol_version, host, port.
+        device_id, identity_id, join_name, device_name, device_type,
+        platform, capabilities, protocol_version, host, port.
     Ephemeral (memory only, never written to disk):
-        login token/credential, active socket, connection_id, auth state.
+        login token/credential, active socket, connection_id, auth state,
+        lease information (connected_at, lease_expires_at,
+        lease_duration_seconds).
     - Startup loads the remembered device but ALWAYS requires login again.
     - Full shutdown destroys the session; next launch requires login.
     - Reconnect while the app is open reuses the in-memory token and the
       remembered device identity (no re-registration from scratch).
+    - join_name is generated once at first configuration, remembered, and
+      stays stable across reconnects and restarts.
+    - The host is authoritative for the 24-hour connection lease; the client
+      only tracks lease information for state/UX.
 """
 
 from __future__ import annotations
@@ -59,6 +65,26 @@ _EPHEMERAL_KEYS = frozenset(
 
 class DeviceClientError(Exception):
     """Raised for client-side protocol/transport failures."""
+
+
+def _sanitize_name_part(value: str) -> str:
+    """Keep a join-name part human-readable and token-free."""
+    cleaned = "".join(c if (c.isalnum() or c in ("-", "_", ".")) else "-" for c in value.strip())
+    while "--" in cleaned:
+        cleaned = cleaned.replace("--", "-")
+    return cleaned.strip("-._") or "device"
+
+
+def generate_join_name(device_name: str, device_id: str) -> str:
+    """Derive the stable human-readable join name for a device.
+
+    Format: ``<device-name>-<short-device-id>`` (e.g. ``MacBook-mac-01``).
+    Deterministic for the same inputs; contains no secrets.
+    """
+    name = _sanitize_name_part(device_name or device_id)
+    short_id = _sanitize_name_part(device_id)
+    join_name = f"{name}-{short_id}"
+    return join_name[:64]
 
 
 def default_device_file() -> Path:
@@ -134,6 +160,7 @@ class CoreDeviceClient:
         ca_file: Path | str | None = None,
         insecure: bool = False,
         timeout: float = 10.0,
+        join_name: str | None = None,
     ) -> None:
         if not device_id or not device_id.strip():
             raise ValueError("device_id cannot be empty.")
@@ -143,6 +170,11 @@ class CoreDeviceClient:
         # identity_id is bound to device_id per server contract.
         self.identity_id = self.device_id
         self.device_name = device_name or self.device_id
+        # join_name is generated once, remembered, and stable across
+        # reconnects and restarts. Never derived from secrets.
+        self.join_name = (join_name or "").strip() or generate_join_name(
+            self.device_name, self.device_id
+        )
         self.device_type = device_type
         self.platform = platform
         self.capabilities = list(capabilities or [])
@@ -158,12 +190,17 @@ class CoreDeviceClient:
         self._connection_id: str | None = None
         self._authenticated = False
         self._registered = False
+        # -- lease tracking (host-authoritative, tracked locally only) --
+        self._connected_at: str | None = None
+        self._lease_expires_at: str | None = None
+        self._lease_duration_seconds: int | None = None
 
     # -- remembered device (persistent, no secrets) --
     def remembered_state(self) -> dict:
         return {
             "device_id": self.device_id,
             "identity_id": self.identity_id,
+            "join_name": self.join_name,
             "device_name": self.device_name,
             "device_type": self.device_type,
             "platform": self.platform,
@@ -222,6 +259,26 @@ class CoreDeviceClient:
         self._authenticated = False
         self._registered = False
         self._connection_id = None
+        self._connected_at = None
+        self._lease_expires_at = None
+        self._lease_duration_seconds = None
+
+    def mark_disconnected(self) -> None:
+        """Mark this client disconnected after a (possibly forced) close.
+
+        Clears connection-scoped state (socket, connection_id, auth flags,
+        lease tracking) while preserving the remembered identity
+        (device_id/identity_id/join_name) and — if the application is still
+        running — the in-memory login token, so a fresh authenticated
+        reconnect remains possible per Option A semantics.
+        """
+        self.close_socket()
+        self._connection_id = None
+        self._authenticated = False
+        self._registered = False
+        self._connected_at = None
+        self._lease_expires_at = None
+        self._lease_duration_seconds = None
 
     @property
     def is_logged_in(self) -> bool:
@@ -230,6 +287,56 @@ class CoreDeviceClient:
     @property
     def connection_id(self) -> str | None:
         return self._connection_id
+
+    @property
+    def connected_at(self) -> str | None:
+        """Host-reported connection start (tracked locally, not authoritative)."""
+        return self._connected_at
+
+    @property
+    def lease_expires_at(self) -> str | None:
+        """Host-reported lease expiry (tracked locally, not authoritative)."""
+        return self._lease_expires_at
+
+    @property
+    def lease_duration_seconds(self) -> int | None:
+        """Host-reported lease duration in seconds, if provided."""
+        return self._lease_duration_seconds
+
+    @property
+    def is_connected(self) -> bool:
+        return self._sock is not None and self._authenticated
+
+    def _track_lease(self, payload: dict) -> None:
+        """Record host-provided lease information (local tracking only)."""
+        if not isinstance(payload, dict):
+            return
+        connected_at = payload.get("connected_at")
+        lease_expires_at = payload.get("lease_expires_at")
+        lease_duration = payload.get("lease_duration_seconds")
+        if isinstance(connected_at, str) and connected_at:
+            self._connected_at = connected_at
+        if isinstance(lease_expires_at, str) and lease_expires_at:
+            self._lease_expires_at = lease_expires_at
+        if isinstance(lease_duration, int) and lease_duration > 0:
+            self._lease_duration_seconds = lease_duration
+
+    @staticmethod
+    def _is_closure_error(exc: Exception) -> bool:
+        if isinstance(exc, DeviceClientError) and "Connection closed" in str(exc):
+            return True
+        # A write to a peer-closed socket surfaces as EPIPE/reset rather
+        # than a clean EOF; both mean the connection is gone.
+        return isinstance(
+            exc, (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)
+        )
+
+    def _connection_lost(self, exc: Exception) -> DeviceClientError:
+        """Mark this client disconnected and normalize the error type."""
+        self.mark_disconnected()
+        if isinstance(exc, DeviceClientError):
+            return exc
+        return DeviceClientError(f"C.O.R.E. host connection lost: {exc}")
 
     # -- wire --
     def _build_tls_context(self) -> ssl.SSLContext:
@@ -286,6 +393,7 @@ class CoreDeviceClient:
                 "identity_id": self.identity_id,
                 "credential": self._token,
                 "protocol_version": self.protocol_version,
+                "join_name": self.join_name,
             },
             identity_id=self.identity_id,
         )
@@ -305,6 +413,10 @@ class CoreDeviceClient:
         self._connection_id = payload.get("connection_id")
         self._authenticated = True
         self._registered = False
+        self._connected_at = None
+        self._lease_expires_at = None
+        self._lease_duration_seconds = None
+        self._track_lease(payload)
         return resp
 
     def register(self) -> dict:
@@ -316,6 +428,7 @@ class CoreDeviceClient:
             message_type=REGISTER_TYPE,
             payload={
                 "device_id": self.device_id,
+                "join_name": self.join_name,
                 "device_name": self.device_name,
                 "device_type": self.device_type,
                 "platform": self.platform,
@@ -324,8 +437,13 @@ class CoreDeviceClient:
             },
             identity_id=self.identity_id,
         )
-        _send_frame(self._sock, msg)
-        resp = _recv_frame(self._sock)
+        try:
+            _send_frame(self._sock, msg)
+            resp = _recv_frame(self._sock)
+        except Exception as exc:
+            if self._is_closure_error(exc):
+                raise self._connection_lost(exc) from exc
+            raise
         if resp.get("message_type") == ERROR_TYPE:
             payload = resp.get("payload", {}) if isinstance(resp.get("payload"), dict) else {}
             raise DeviceClientError(
@@ -335,32 +453,46 @@ class CoreDeviceClient:
         if resp.get("message_type") != REGISTER_RESPONSE_TYPE:
             raise DeviceClientError("Unexpected response to DEVICE_REGISTER.")
         self._registered = True
+        if isinstance(resp.get("payload"), dict):
+            self._track_lease(resp["payload"])
         return resp
 
     def discover(self) -> dict:
         if self._sock is None or not self._registered:
             raise DeviceClientError("Register before discovery.")
-        _send_frame(
-            self._sock,
-            _new_message(
-                source=self.identity_id,
-                destination="core",
-                message_type=DISCOVER_TYPE,
-                payload={},
-                identity_id=self.identity_id,
-            ),
-        )
-        return _recv_frame(self._sock)
+        try:
+            _send_frame(
+                self._sock,
+                _new_message(
+                    source=self.identity_id,
+                    destination="core",
+                    message_type=DISCOVER_TYPE,
+                    payload={},
+                    identity_id=self.identity_id,
+                ),
+            )
+            return _recv_frame(self._sock)
+        except Exception as exc:
+            if self._is_closure_error(exc):
+                raise self._connection_lost(exc) from exc
+            raise
 
     def reconnect(self) -> dict:
         """Reconnect while the app stays open: same token, new connection_id."""
         if not self.is_logged_in:
             raise DeviceClientError("Login required before reconnect.")
         old_id = self._connection_id
+        old_lease = self._lease_expires_at
         resp = self.connect()
         reg = self.register()
         if old_id is not None and self._connection_id == old_id:
             raise DeviceClientError("Reconnect did not yield a new connection_id.")
+        if (
+            old_lease is not None
+            and self._lease_expires_at is not None
+            and self._lease_expires_at == old_lease
+        ):
+            raise DeviceClientError("Reconnect did not yield a new lease.")
         return reg
 
     def close_socket(self) -> None:
@@ -398,6 +530,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device-file", default=str(default_device_file()))
     parser.add_argument("--device-id", default=None)
     parser.add_argument("--device-name", default=None)
+    parser.add_argument(
+        "--join-name",
+        default=None,
+        help="Stable human-readable join name (generated once if omitted).",
+    )
     parser.add_argument("--device-type", default="generic")
     parser.add_argument("--platform", default="mac")
     parser.add_argument("--capabilities", default="", help="Comma-separated list.")
@@ -431,6 +568,7 @@ def main(argv: list | None = None) -> int:
             port=args.port or 5000,
             device_id=args.device_id,
             device_name=args.device_name or args.device_id,
+            join_name=args.join_name,
             device_type=args.device_type,
             platform=args.platform,
             capabilities=caps,
@@ -438,6 +576,7 @@ def main(argv: list | None = None) -> int:
         )
         path = client.save_remembered()
         print(f"Remembered device saved to {path} (no secrets stored).")
+        print(f"Join name: {client.join_name} (stable across reconnects).")
         print("Login is still required on every launch (Option A).")
         return 0
 
@@ -449,6 +588,7 @@ def main(argv: list | None = None) -> int:
             port=args.port,
             device_id=args.device_id,
             device_name=args.device_name,
+            join_name=args.join_name,
             capabilities=caps or None,
         )
     except DeviceClientError as exc:

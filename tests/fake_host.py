@@ -75,10 +75,13 @@ class FakeCoreHost:
         token: str = "secret-mac-01",
         device_id: str = "mac-01",
         lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
     ) -> None:
         self.token = token
         self.device_id = device_id
         self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
         self.devices: dict = {}
         self._lock = threading.Lock()
         self._conns: set = set()
@@ -160,11 +163,15 @@ class FakeCoreHost:
                 payload = msg.get("payload") if isinstance(msg.get("payload"), dict) else {}
 
                 if mtype == "CORE_HANDSHAKE":
+                    ident = payload.get("identity_id")
+                    cred = payload.get("credential")
+                    expected = self.token if ident == self.device_id else self.peers.get(ident)
                     if (
-                        payload.get("identity_id") == self.device_id
-                        and payload.get("credential") == self.token
+                        isinstance(ident, str)
+                        and expected is not None
+                        and cred == expected
                     ):
-                        identity = self.device_id
+                        identity = ident
                         connection_id = str(uuid.uuid4())
                         session_token = secrets.token_urlsafe(32)
                         connected_at, lease_expires_at = _lease_window(self.lease_seconds)
@@ -406,6 +413,51 @@ class FakeCoreHost:
                         )
                     except OSError:
                         break
+                elif isinstance(msg.get("destination"), str) and msg["destination"] not in ("", "core") and not msg["destination"].startswith("service:"):
+                    # Device-to-device relay (mirrors host _handle_device_routed):
+                    # registered sender + valid session only; the session
+                    # token is stripped before forwarding; the sender gets
+                    # NO reply (one-way routing).
+                    target = msg["destination"]
+                    if identity is None or device is None:
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Register before sending.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Invalid session token.", msg)
+                        continue
+                    with self._lock:
+                        rec = self.devices.get(target)
+                        peer = self._device_conns.get(target)
+                        live = (
+                            peer is not None
+                            and rec is not None
+                            and rec.get("status") == "online"
+                        )
+                    if rec is None:
+                        self._error(conn, "DEVICE_NOT_FOUND",
+                                    "Destination device was not found.", msg)
+                        continue
+                    if not live:
+                        self._error(conn, "DEVICE_UNAVAILABLE",
+                                    "Destination device is offline.", msg)
+                        continue
+                    forwarded = dict(msg)
+                    fwd_payload = dict(payload)
+                    fwd_payload.pop("_session_token", None)
+                    forwarded["payload"] = fwd_payload
+                    try:
+                        send_frame(peer, forwarded)
+                    except OSError:
+                        self._error(conn, "DEVICE_UNAVAILABLE",
+                                    "Destination device is offline.", msg)
+                    continue
                 else:
                     self._error(conn, "COMMUNICATION_ERROR",
                                 f"Unknown message type: {mtype}.", msg)

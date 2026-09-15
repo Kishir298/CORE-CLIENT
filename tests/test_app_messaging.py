@@ -7,9 +7,17 @@ malformed/oversized payloads and lifecycle shutdown. Stdlib only.
 
 from __future__ import annotations
 
+import socket
+
 import pytest
 
-from client.core_device_client import CoreDeviceClient, DeviceClientError
+from client.core_device_client import (
+    _new_message,
+    _recv_frame,
+    _send_frame,
+    CoreDeviceClient,
+    DeviceClientError,
+)
 
 from .fake_host import FakeCoreHost
 
@@ -170,4 +178,63 @@ def test_request_requires_reconnect_after_shutdown(tmp_path):
         with pytest.raises(DeviceClientError, match="Register before"):
             client.request("core", "DEVICE_DISCOVER", {})
     finally:
+        host.stop()
+
+
+def _peer_client(port, device_file, device_id, name, token):
+    client = CoreDeviceClient(
+        host="127.0.0.1",
+        port=port,
+        device_id=device_id,
+        device_name=name,
+        device_file=device_file,
+        use_tls=False,
+    )
+    client.login(token)
+    return client
+
+
+def test_device_to_device_relay_strips_session_token(tmp_path):
+    host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+    sender = _peer_client(host.port, tmp_path / "a.json", "mac-01", "MacBook", "secret-mac-01")
+    peer = _peer_client(host.port, tmp_path / "b.json", "mac-02", "MacMini", "secret-mac-02")
+    try:
+        sender.connect()
+        sender.register()
+        peer.connect()
+        peer.register()
+        _send_frame(
+            sender._sock,
+            _new_message(
+                source="mac-01",
+                destination="mac-02",
+                message_type="APP_PING",
+                payload=sender._authed_payload({"text": "hello peer"}),
+                identity_id="mac-01",
+            ),
+        )
+        peer._sock.settimeout(5.0)
+        forwarded = _recv_frame(peer._sock)
+        assert forwarded["source"] == "mac-01"
+        assert forwarded["destination"] == "mac-02"
+        assert forwarded["identity_id"] == "mac-01"
+        assert forwarded["payload"]["text"] == "hello peer"
+        assert "_session_token" not in forwarded["payload"]
+        # One-way routing: the sender gets no reply envelope.
+        sender._sock.settimeout(0.5)
+        with pytest.raises(socket.timeout):
+            _recv_frame(sender._sock)
+    finally:
+        sender.shutdown()
+        peer.shutdown()
+        host.stop()
+
+
+def test_device_to_device_unknown_device_rejected(tmp_path):
+    host, client = _connected(tmp_path)
+    try:
+        with pytest.raises(DeviceClientError, match="DEVICE_NOT_FOUND"):
+            client.send_to_device("ghost-99", "APP_PING", {"text": "hi"})
+    finally:
+        client.shutdown()
         host.stop()

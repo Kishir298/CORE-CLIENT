@@ -44,6 +44,13 @@ REGISTER_TYPE = "DEVICE_REGISTER"
 REGISTER_RESPONSE_TYPE = "DEVICE_REGISTER_RESPONSE"
 DISCOVER_TYPE = "DEVICE_DISCOVER"
 DISCOVER_RESPONSE_TYPE = "DEVICE_DISCOVER_RESPONSE"
+INFO_TYPE = "DEVICE_INFO"
+INFO_RESPONSE_TYPE = "DEVICE_INFO_RESPONSE"
+DATA_REQUEST_TYPE = "DATA_REQUEST"
+DATA_RESPONSE_TYPE = "DATA_RESPONSE"
+DATA_ERROR_TYPE = "DATA_ERROR"
+SERVICE_REQUEST_TYPE = "SERVICE_REQUEST"
+SERVICE_RESPONSE_TYPE = "SERVICE_RESPONSE"
 ERROR_TYPE = "DEVICE_ERROR"
 HEADER_SIZE = 4
 MAX_FRAME_SIZE = 10 * 1024 * 1024
@@ -562,24 +569,144 @@ class CoreDeviceClient:
         return resp
 
     def discover(self) -> dict:
+        """List devices via DEVICE_DISCOVER (convenience over request())."""
         if self._sock is None or not self._registered:
             raise DeviceClientError("Register before discovery.")
+        return self.request("core", DISCOVER_TYPE)
+
+    def device_info(self, device_id: str) -> dict:
+        """Fetch one device record via DEVICE_INFO."""
+        if not isinstance(device_id, str) or not device_id.strip():
+            raise DeviceClientError("device_id must not be empty.")
+        return self.request(
+            "core", INFO_TYPE, {"device_id": device_id.strip()}
+        )
+
+    def data_request(
+        self,
+        request_type: str,
+        payload: dict | None = None,
+        destination: str = "core",
+        timeout: float | None = None,
+    ) -> dict:
+        """Send a DATA_REQUEST (record_get/list/search, file_metadata/download)."""
+        if not isinstance(request_type, str) or not request_type.strip():
+            raise DeviceClientError("request_type must not be empty.")
+        body = dict(payload or {})
+        body["request_type"] = request_type.strip()
+        return self.request(destination, DATA_REQUEST_TYPE, body, timeout=timeout)
+
+    def service_request(
+        self,
+        service_id: str,
+        operation: str,
+        params: dict | None = None,
+        timeout: float | None = None,
+    ) -> dict:
+        """Invoke a host service via destination service:<id>.
+
+        Payload carries ``operation`` plus params; the host strips the
+        session token before dispatch and replies SERVICE_RESPONSE.
+        """
+        if not isinstance(service_id, str) or not service_id.strip():
+            raise DeviceClientError("service_id must not be empty.")
+        if not isinstance(operation, str) or not operation.strip():
+            raise DeviceClientError("operation must not be empty.")
+        if params is not None and not isinstance(params, dict):
+            raise DeviceClientError("params must be a dict.")
+        body = dict(params or {})
+        body["operation"] = operation.strip()
+        return self.request(
+            f"service:{service_id.strip()}",
+            SERVICE_REQUEST_TYPE,
+            body,
+            timeout=timeout,
+        )
+
+    def send_to_device(
+        self,
+        device_id: str,
+        message_type: str,
+        payload: dict | None = None,
+        timeout: float | None = None,
+    ) -> dict:
+        """Send a device-to-device application message via the host router."""
+        if not isinstance(device_id, str) or not device_id.strip():
+            raise DeviceClientError("device_id must not be empty.")
+        if not isinstance(message_type, str) or not message_type.strip():
+            raise DeviceClientError("message_type must not be empty.")
+        return self.request(
+            device_id.strip(), message_type.strip(), payload, timeout=timeout
+        )
+
+    def request(
+        self,
+        destination: str,
+        message_type: str,
+        payload: dict | None = None,
+        timeout: float | None = None,
+    ) -> dict:
+        """Send one authenticated application request, wait for one response.
+
+        Reuses the existing socket/TLS/session/connection/framing. Every
+        request carries a unique request_id; timeouts are bounded (default
+        self.timeout). DEVICE_ERROR/DATA_ERROR payloads raise
+        DeviceClientError with the host's error code preserved.
+        """
+        if self._sock is None or not self._registered:
+            raise DeviceClientError("Register before sending application requests.")
+        if not isinstance(destination, str) or not destination.strip():
+            raise DeviceClientError("destination must not be empty.")
+        if not isinstance(message_type, str) or not message_type.strip():
+            raise DeviceClientError("message_type must not be empty.")
+        if payload is not None and not isinstance(payload, dict):
+            raise DeviceClientError("payload must be a dict.")
+        wait = self.timeout if timeout is None else float(timeout)
+        if wait <= 0:
+            raise DeviceClientError("timeout must be positive.")
+        msg = _new_message(
+            source=self.identity_id,
+            destination=destination.strip(),
+            message_type=message_type.strip(),
+            payload=self._authed_payload(dict(payload or {})),
+            identity_id=self.identity_id,
+        )
+        msg["request_id"] = str(uuid.uuid4())
+        sock = self._sock
         try:
-            _send_frame(
-                self._sock,
-                _new_message(
-                    source=self.identity_id,
-                    destination="core",
-                    message_type=DISCOVER_TYPE,
-                    payload=self._authed_payload(),
-                    identity_id=self.identity_id,
-                ),
-            )
-            return _recv_frame(self._sock)
+            previous = sock.gettimeout()
+        except Exception:
+            previous = None
+        try:
+            try:
+                sock.settimeout(wait)
+            except Exception:
+                pass
+            _send_frame(sock, msg)
+            resp = _recv_frame(sock)
         except Exception as exc:
             if self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
-            raise
+            if isinstance(exc, DeviceClientError):
+                raise
+            raise DeviceClientError(f"Application request failed: {exc}") from exc
+        finally:
+            try:
+                sock.settimeout(previous if previous is not None else self.timeout)
+            except Exception:
+                pass
+        if not isinstance(resp, dict):
+            raise DeviceClientError("Malformed application response.")
+        rtype = resp.get("message_type")
+        if rtype in (ERROR_TYPE, DATA_ERROR_TYPE):
+            detail = resp.get("payload", {})
+            if not isinstance(detail, dict):
+                detail = {}
+            raise DeviceClientError(
+                f"Host error: {detail.get('error', rtype)}: "
+                f"{detail.get('message', '')}"
+            )
+        return resp
 
     def reconnect(self) -> dict:
         """Reconnect: same provisioning credential, brand-new session."""

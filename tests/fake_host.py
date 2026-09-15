@@ -300,6 +300,112 @@ class FakeCoreHost:
                         )
                     except OSError:
                         break
+                elif mtype == "DEVICE_INFO":
+                    if identity is None or device is None:
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Register before device info.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Invalid session token.", msg)
+                        continue
+                    target = payload.get("device_id")
+                    if not isinstance(target, str) or not target.strip():
+                        self._error(conn, "INVALID_DESTINATION",
+                                    "device_id must not be empty.", msg)
+                        continue
+                    with self._lock:
+                        rec = self.devices.get(target)
+                    if rec is None:
+                        self._error(conn, "DEVICE_NOT_FOUND",
+                                    "Destination device was not found.", msg)
+                        continue
+                    try:
+                        send_frame(
+                            conn,
+                            _envelope(identity, "DEVICE_INFO_RESPONSE",
+                                      {"device": dict(rec)}, msg.get("request_id")),
+                        )
+                    except OSError:
+                        break
+                elif mtype == "DATA_REQUEST":
+                    if identity is None or device is None:
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Register before data request.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Invalid session token.", msg)
+                        continue
+                    rtype = payload.get("request_type")
+                    if not isinstance(rtype, str) or not rtype.strip():
+                        try:
+                            send_frame(
+                                conn,
+                                _envelope(identity, "DATA_ERROR",
+                                          {"error": "INVALID_DATA_REQUEST",
+                                           "message": "request_type is required.",
+                                           "request_id": msg.get("request_id")},
+                                          msg.get("request_id")),
+                            )
+                        except OSError:
+                            break
+                        continue
+                    try:
+                        send_frame(
+                            conn,
+                            _envelope(identity, "DATA_RESPONSE",
+                                      {"request_type": rtype, "echo": {
+                                          k: v for k, v in payload.items()
+                                          if k not in ("_session_token", "request_type")}},
+                                      msg.get("request_id")),
+                        )
+                    except OSError:
+                        break
+                elif mtype == "SERVICE_REQUEST":
+                    if identity is None or device is None:
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Register before service request.", msg)
+                        continue
+                    presented = payload.get("_session_token")
+                    if (
+                        not isinstance(presented, str)
+                        or not presented
+                        or not hmac.compare_digest(presented, session_token or "")
+                    ):
+                        self._error(conn, "DEVICE_NOT_REGISTERED",
+                                    "Invalid session token.", msg)
+                        continue
+                    dest = msg.get("destination", "")
+                    service_id = dest.split("service:", 1)[1] if "service:" in str(dest) else ""
+                    operation = payload.get("operation")
+                    if not service_id or not isinstance(operation, str) or not operation.strip():
+                        self._error(conn, "COMMUNICATION_ERROR",
+                                    "service_id and operation are required.", msg)
+                        continue
+                    try:
+                        send_frame(
+                            conn,
+                            _envelope(identity, "SERVICE_RESPONSE",
+                                      {"service_id": service_id,
+                                       "operation": operation,
+                                       "result": {k: v for k, v in payload.items()
+                                                  if k not in ("_session_token", "operation")},
+                                       "success": True, "error": None},
+                                      msg.get("request_id")),
+                        )
+                    except OSError:
+                        break
                 else:
                     self._error(conn, "COMMUNICATION_ERROR",
                                 f"Unknown message type: {mtype}.", msg)

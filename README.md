@@ -117,6 +117,8 @@ CORE_HANDSHAKE / CORE_HANDSHAKE_RESPONSE
 DEVICE_REGISTER / DEVICE_REGISTER_RESPONSE
 DEVICE_DISCOVER / DEVICE_DISCOVER_RESPONSE
 DEVICE_INFO / DEVICE_INFO_RESPONSE
+DATA_REQUEST / DATA_RESPONSE / DATA_ERROR
+SERVICE_REQUEST / SERVICE_RESPONSE (destination service:<id>)
 DEVICE_ERROR
 ```
 
@@ -130,9 +132,42 @@ DEVICE_ERROR
 
  Every connection carries a host-authoritative 24-hour lease
  (`connected_at`, `lease_expires_at`, `lease_duration_seconds`). The
- client tracks it locally; the host forcibly closes expired connections.
- After a forced close the client marks itself disconnected (identity and
- `join_name` preserved) and must log in + reconnect for a fresh lease.
+  client tracks it locally; the host forcibly closes expired connections.
+  After a forced close the client marks itself disconnected (identity and
+  `join_name` preserved) and must log in + reconnect for a fresh lease.
+
+## Application messaging
+
+After `DEVICE_REGISTER`, one authenticated connection carries all
+application traffic (no second socket per request). Every call attaches
+the ephemeral session token automatically and waits for one bounded
+response (`timeout`, default 10 s):
+
+```python
+from client.core_device_client import CoreDeviceClient
+
+client = CoreDeviceClient(host="192.168.1.67", port=5000,
+                          device_id="mac-01", device_name="MacBook")
+client.login(token)          # RAM only, never persisted
+client.connect()
+client.register()
+
+client.discover()                                   # DEVICE_DISCOVER
+client.device_info("mac-01")                        # DEVICE_INFO
+client.data_request("record_list", {"namespace": "notes", "limit": 5})
+client.service_request("health", "status")          # -> service:health
+client.service_request("agent", "status", {"device_id": "mac-01"})
+client.send_to_device("other-01", "APP_MESSAGE", {"text": "hi"})
+client.request("core", "DEVICE_DISCOVER", {})       # generic escape hatch
+```
+
+Rules: register before any application call; each request carries a
+unique `request_id`; `DEVICE_ERROR`/`DATA_ERROR` responses raise
+`DeviceClientError` with the host code preserved (`DEVICE_NOT_FOUND`,
+`INVALID_DATA_REQUEST`, ...); connection loss marks the client
+`DISCONNECTED` (session destroyed, identity kept). No protocol change
+was needed on the host — these reuse the existing `DEVICE_DISCOVER` /
+`DEVICE_INFO` / `DATA_REQUEST` / `service:*` handlers.
 
 ## Project structure
 

@@ -73,12 +73,17 @@ Authenticated (connection_id=<uuid>).
 Registered: {'registered': True, 'device_id': 'mac-01', 'status': 'online'}. Status: online.
 ```
 
- Commands at `core-device>`: `discover`, `reconnect`, `quit`. Quitting (or
- `Ctrl+C`) prints `Disconnected; login session cleared (device remains
- remembered).` — the next launch requires login again. Each connection
- carries a host-authoritative 24-hour lease; if the host closes an expired
- connection, the client marks itself disconnected (identity and remembered
- `join_name` preserved) and must log in and reconnect for a fresh lease.
+  Commands at `core-device>`: `discover`, `reconnect`, `quit`. Quitting (or
+  `Ctrl+C`) prints `Disconnected; login session cleared (device remains
+  remembered).` — the next launch requires login again. Each connection
+  carries a host-authoritative 24-hour lease; if the host closes an expired
+  connection, the client marks itself disconnected (identity and remembered
+  `join_name` preserved) and must log in and reconnect for a fresh lease.
+
+  Application calls (`device_info`, `data_request`, `service_request`,
+  `send_to_device`, generic `request`) are library API over the same
+  authenticated connection — see `README.md` (Application messaging).
+  They are not interactive CLI commands.
 
  ## 6. CLI reference
 

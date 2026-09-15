@@ -28,6 +28,11 @@ server state and invents none.
 | `connect` | TCP (+TLS) + `CORE_HANDSHAKE`, enforces login-first, rejects weak TLS |
 | `register` | `DEVICE_REGISTER` after authentication |
 | `discover` | `DEVICE_DISCOVER` after registration |
+| `device_info` | `DEVICE_INFO` for one device record |
+| `data_request` | `DATA_REQUEST` (record/file queries) |
+| `service_request` | `SERVICE_REQUEST` to `service:<id>` endpoints |
+| `send_to_device` | device-to-device message via the host router |
+| `request` | generic bounded application call all of the above reuse |
 | `reconnect` | Same provisioning credential, new `connection_id`, new session token, new lease |
 | `mark_disconnected` | Forced-close handling: clears session token + connection state, keeps identity + provisioning credential |
 | `close_socket / shutdown` | Clean disconnect; `shutdown` also destroys the login session |
@@ -64,8 +69,13 @@ UTF-8 JSON envelope:
 
 Errors arrive as `DEVICE_ERROR` envelopes
 (`DEVICE_ALREADY_REGISTERED`, `DEVICE_REGISTRATION_FAILED`,
-`DEVICE_NOT_REGISTERED`, `COMMUNICATION_ERROR`, …) and raise
+`DEVICE_NOT_REGISTERED`, `COMMUNICATION_ERROR`, …) and data errors as
+`DATA_ERROR` (`INVALID_DATA_REQUEST`, …); both raise
 `DeviceClientError` with the server code preserved in the message.
+Service calls (`destination service:<id>`, payload `operation` + args)
+return `SERVICE_RESPONSE`. Every application call carries a unique
+`request_id`, reuses the one authenticated socket, and takes a bounded
+`timeout` (default 10 s). See `README.md` (Application messaging).
 
  ## Identity model
 

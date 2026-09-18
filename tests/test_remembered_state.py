@@ -15,6 +15,9 @@ EPHEMERAL_KEYS = (
     "session_token",
     "connection_id",
     "authenticated",
+    "connected_at",
+    "lease_expires_at",
+    "lease_duration_seconds",
 )
 
 

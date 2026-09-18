@@ -107,6 +107,7 @@ C.O.R.E.-HOST); the token is handed to the device user out-of-band.
   on the client and is never needed.
 * `--insecure` skips verification (trusted LAN only, explicit opt-in).
 * `--no-tls` plaintext exists for localhost testing only — never for LAN.
+* Note: hostname check is disabled for `CN=localhost/SAN 192.168.1.67` self-signed setups; certificate chain is still required (see `docs/lan-testing.md`).
 
 ## Protocol
 

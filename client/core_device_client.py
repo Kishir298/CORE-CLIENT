@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import getpass
 import json
+import os
 import socket
 import ssl
 import struct
@@ -233,6 +234,10 @@ class CoreDeviceClient:
             state.pop(key, None)
         self.device_file.parent.mkdir(parents=True, exist_ok=True)
         self.device_file.write_text(json.dumps(state, indent=2), encoding="utf-8")
+        try:
+            os.chmod(self.device_file, 0o600)
+        except OSError:
+            pass
         return self.device_file
 
     @classmethod
@@ -268,7 +273,7 @@ class CoreDeviceClient:
         """Begin a login session. Provisioning credential, memory only."""
         if not token or not str(token).strip():
             raise DeviceClientError("Login requires a non-empty token.")
-        self._provisioning_credential = str(token)
+        self._provisioning_credential = str(token).strip()
 
     @property
     def _token(self) -> str | None:
@@ -892,11 +897,13 @@ def main(argv: list | None = None) -> int:
     if args.insecure:
         client.insecure = True
         print("WARNING: --insecure skips cert verification; use only on trusted LAN.")
+        if args.ca_file:
+            print("WARNING: --ca-file is ignored with --insecure.")
 
     try:
         hs = client.connect()
         print("Connecting to C.O.R.E...")
-        print("TLS established")
+        print("TLS established" if client.use_tls else "PLAINTEXT (no TLS) — localhost only")
         print("Authentication successful")
         print("Session established")
         client.register()

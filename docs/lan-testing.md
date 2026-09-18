@@ -3,7 +3,7 @@
 ## Status
 
 ```text
-AUTOMATED TESTING:       IMPLEMENTED (client suite 53 passed; host suite 670 passed)
+AUTOMATED TESTING:       IMPLEMENTED (client suite 78 passed (2026-09-18); host suite 670 passed)
 PHYSICAL LAN VALIDATION: NOT YET PERFORMED — do not claim otherwise
 ```
 
@@ -55,3 +55,5 @@ server private key is never copied.
  - [ ] Claiming another `device_id` rejected
  - [ ] Client restart requires login; device still remembered
  - [ ] No private key material ever copied to the Mac
+
+> TLS note: client validates cert chain (CERT_REQUIRED, TLS 1.2+) but leaves hostname unchecked (check_hostname=False) to support CN=localhost / SAN 192.168.1.67 self-signed setups. Copy only the public cert; never core.key/.pfx.

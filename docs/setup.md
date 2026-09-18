@@ -2,7 +2,7 @@
 
 ## 1. Requirements
 
-* Python `>=3.10`, no third-party packages.
+* Python `>=3.10`, runtime stdlib-only (tests require `pytest>=8.0`).
 * Network reachability to the Windows C.O.R.E.-HOST (`ping` + TCP port).
 * A provisioned device identity (see §2) and the host's **public**
   certificate for TLS verification (see §3).
@@ -69,16 +69,16 @@ python3 -m client \
 Enter the token at the prompt (or `--token` for scripting). Expected:
 
 ```text
-Authenticated (connection_id=<uuid>).
-Registered: {'registered': True, 'device_id': 'mac-01', 'status': 'online'}. Status: online.
+Connecting... / TLS established / Authentication successful /
+Session established / Device registered — Status: online (+ session banner)
 ```
 
-  Commands at `core-device>`: `discover`, `reconnect`, `quit`. Quitting (or
+  Commands at `core-device>`: `discover | reconnect | session | quit` (`exit` aliases `quit`). Quitting (or
   `Ctrl+C`) prints `Disconnected; login session cleared (device remains
   remembered).` — the next launch requires login again. Each connection
   carries a host-authoritative 24-hour lease; if the host closes an expired
   connection, the client marks itself disconnected (identity and remembered
-  `join_name` preserved) and must log in and reconnect for a fresh lease.
+  `join_name` preserved) and reconnects for a fresh lease (in-app expiry reuses in-memory credential; after full shutdown login is required again).
 
   Application calls (`device_info`, `data_request`, `service_request`,
   `send_to_device`, generic `request`) are library API over the same
@@ -99,5 +99,5 @@ Registered: {'registered': True, 'device_id': 'mac-01', 'status': 'online'}. Sta
 python3 -m pytest -q
 ```
 
-The suite is stdlib-only and uses an in-process fake host
+The suite is stdlib-only at runtime (pytest runner) and uses an in-process fake host
 (`tests/fake_host.py`); no C.O.R.E.-HOST checkout required.

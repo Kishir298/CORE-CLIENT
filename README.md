@@ -30,7 +30,7 @@ host imports.**
 
 ## Installation
 
-No dependencies beyond Python `>=3.10`:
+Runtime stdlib-only (Python `>=3.10`; tests require `pytest>=8.0`):
 
 ```bash
 cd /path/to/CORE-CLIENT
@@ -66,7 +66,7 @@ python3 -m client \
 
 The client prompts `Token for mac-01:` (or pass `--token` for scripting),
 then performs `CORE_HANDSHAKE` → authentication → `DEVICE_REGISTER` and
-reports `online`. Interactive commands: `discover | reconnect | quit`.
+reports `online`. Interactive commands: `discover | reconnect | session | quit` (`exit` aliases `quit`).
 `Ctrl+C` disconnects cleanly.
 
 ## Authentication (Option A)
@@ -83,7 +83,7 @@ reports `online`. Interactive commands: `discover | reconnect | quit`.
  no secrets.
 
 It MUST NOT and does NOT contain: `token, credential, password,
-api_token, session, connection_id, authenticated`.
+api_token, session, session_token, connection_id, authenticated`.
 
 Lifecycle:
 

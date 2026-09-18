@@ -66,6 +66,9 @@ _EPHEMERAL_KEYS = frozenset(
         "session_token",
         "connection_id",
         "authenticated",
+        "lease_expires_at",
+        "lease_duration_seconds",
+        "connected_at",
     }
 )
 

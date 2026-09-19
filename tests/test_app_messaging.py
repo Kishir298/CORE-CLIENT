@@ -233,8 +233,11 @@ def test_device_to_device_relay_strips_session_token(tmp_path):
 def test_device_to_device_unknown_device_rejected(tmp_path):
     host, client = _connected(tmp_path)
     try:
+        # Confirmation requires waiting for the host's reply envelope.
         with pytest.raises(DeviceClientError, match="DEVICE_NOT_FOUND"):
-            client.send_to_device("ghost-99", "APP_PING", {"text": "hi"})
+            client.send_to_device(
+                "ghost-99", "APP_PING", {"text": "hi"}, wait_reply=True
+            )
     finally:
         client.shutdown()
         host.stop()

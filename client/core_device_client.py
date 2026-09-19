@@ -57,6 +57,7 @@ HEADER_SIZE = 4
 MAX_FRAME_SIZE = 10 * 1024 * 1024
 
 # Keys that must NEVER be persisted to the remembered-device file.
+# Includes the "session-token" hyphen variant some callers/tests use.
 _EPHEMERAL_KEYS = frozenset(
     {
         "token",
@@ -65,11 +66,30 @@ _EPHEMERAL_KEYS = frozenset(
         "api_token",
         "session",
         "session_token",
+        "session-token",
         "connection_id",
         "authenticated",
         "lease_expires_at",
         "lease_duration_seconds",
         "connected_at",
+    }
+)
+
+# Keys allowed in a remembered-device file. Anything else (typos,
+# attacker-added fields, future unknown keys) is rejected instead of
+# crashing the constructor with TypeError.
+_REMEMBERED_KEYS = frozenset(
+    {
+        "device_id",
+        "identity_id",
+        "join_name",
+        "device_name",
+        "device_type",
+        "platform",
+        "capabilities",
+        "protocol_version",
+        "host",
+        "port",
     }
 )
 
@@ -251,14 +271,37 @@ class CoreDeviceClient:
             state = json.loads(path.read_text(encoding="utf-8"))
         except FileNotFoundError as exc:
             raise DeviceClientError(f"No remembered device at {path}.") from exc
+        except OSError as exc:
+            raise DeviceClientError(f"Cannot read remembered device at {path}.") from exc
+        except json.JSONDecodeError as exc:
+            raise DeviceClientError(
+                f"Remembered device file at {path} is corrupt."
+            ) from exc
         if not isinstance(state, dict):
             raise DeviceClientError("Remembered device file is corrupt.")
         for key in _EPHEMERAL_KEYS:
             state.pop(key, None)
+        unknown = sorted(k for k in state if k not in _REMEMBERED_KEYS)
+        if unknown:
+            raise DeviceClientError(
+                "Remembered device file has unknown fields: "
+                + ", ".join(unknown)
+            )
         # identity_id is derived from device_id; keep the file as the
         # remembered source but never let it diverge into a second identity.
         remembered_identity = state.pop("identity_id", None)
         state.update({k: v for k, v in overrides.items() if v is not None})
+        if (
+            not isinstance(state.get("device_id"), str)
+            or not state["device_id"].strip()
+            or not isinstance(state.get("host"), str)
+            or not state["host"].strip()
+            or state.get("port") is None
+        ):
+            raise DeviceClientError(
+                "Remembered device file is missing required fields "
+                "(device_id, host, port)."
+            )
         client = cls(device_file=path, **state)
         if (
             isinstance(remembered_identity, str)
@@ -286,7 +329,12 @@ class CoreDeviceClient:
 
     def logout(self) -> None:
         """Destroy the login session without touching the remembered device."""
+        self.close_socket()
         self._provisioning_credential = None
+        self._clear_session()
+
+    def _clear_session(self) -> None:
+        """Clear connection-scoped session state (socket already handled)."""
         self._session_token = None
         self._authenticated = False
         self._registered = False
@@ -306,13 +354,7 @@ class CoreDeviceClient:
         per Option A semantics. The expired session token is never reused.
         """
         self.close_socket()
-        self._session_token = None
-        self._connection_id = None
-        self._authenticated = False
-        self._registered = False
-        self._connected_at = None
-        self._lease_expires_at = None
-        self._lease_duration_seconds = None
+        self._clear_session()
 
     @property
     def is_logged_in(self) -> bool:
@@ -453,6 +495,9 @@ class CoreDeviceClient:
             ctx.verify_mode = ssl.CERT_NONE
         else:
             ctx.check_hostname = False
+            # Accepted risk (documented in README/lan-testing): the LAN cert
+            # is self-signed with CN=localhost, so hostname verification
+            # stays off and chain verification via ca_file is the trust root.
             ctx.verify_mode = ssl.CERT_REQUIRED
             if self.ca_file is not None:
                 ctx.load_verify_locations(cafile=str(self.ca_file))
@@ -562,7 +607,7 @@ class CoreDeviceClient:
             if self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
             raise
-        if resp.get("message_type") == ERROR_TYPE:
+        if resp.get("message_type") in (ERROR_TYPE, DATA_ERROR_TYPE):
             payload = resp.get("payload", {}) if isinstance(resp.get("payload"), dict) else {}
             raise DeviceClientError(
                 f"Registration rejected: {payload.get('error', 'DEVICE_ERROR')}: "
@@ -637,12 +682,51 @@ class CoreDeviceClient:
         message_type: str,
         payload: dict | None = None,
         timeout: float | None = None,
+        wait_reply: bool = False,
     ) -> dict:
-        """Send a device-to-device application message via the host router."""
+        """Send a device-to-device application message via the host router.
+
+        The host relay is one-way: the sender gets NO reply envelope on
+        success (only DEVICE_ERROR on failure). The default
+        ``wait_reply=False`` therefore sends and returns immediately with
+        ``{"dispatched": True, ...}``. Pass ``wait_reply=True`` only when
+        the destination is known to reply, otherwise the call blocks until
+        ``timeout`` and raises. Note: fire-and-forget delivery to an
+        unknown device leaves the host's error frame unread, which will
+        fail the next correlated request and drop the connection — use
+        ``wait_reply=True`` when delivery confirmation matters.
+        """
         if not isinstance(device_id, str) or not device_id.strip():
             raise DeviceClientError("device_id must not be empty.")
         if not isinstance(message_type, str) or not message_type.strip():
             raise DeviceClientError("message_type must not be empty.")
+        if not wait_reply:
+            if self._sock is None or not self._registered:
+                raise DeviceClientError(
+                    "Register before sending application requests."
+                )
+            msg = _new_message(
+                source=self.identity_id,
+                destination=device_id.strip(),
+                message_type=message_type.strip(),
+                payload=self._authed_payload(dict(payload or {})),
+                identity_id=self.identity_id,
+            )
+            msg["request_id"] = str(uuid.uuid4())
+            try:
+                _send_frame(self._sock, msg)
+            except Exception as exc:
+                if self._is_closure_error(exc):
+                    raise self._connection_lost(exc) from exc
+                raise DeviceClientError(
+                    f"Application request failed: {exc}"
+                ) from exc
+            return {
+                "dispatched": True,
+                "destination": device_id.strip(),
+                "message_type": message_type.strip(),
+                "request_id": msg["request_id"],
+            }
         return self.request(
             device_id.strip(), message_type.strip(), payload, timeout=timeout
         )
@@ -696,7 +780,9 @@ class CoreDeviceClient:
             if self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
             if isinstance(exc, DeviceClientError):
-                raise
+                # Framing/encoding failures leave the stream desynced;
+                # drop the connection rather than reusing a broken stream.
+                raise self._connection_lost(exc) from exc
             raise DeviceClientError(f"Application request failed: {exc}") from exc
         finally:
             try:
@@ -704,7 +790,17 @@ class CoreDeviceClient:
             except Exception:
                 pass
         if not isinstance(resp, dict):
-            raise DeviceClientError("Malformed application response.")
+            raise self._connection_lost(
+                DeviceClientError("Malformed application response.")
+            )
+        if resp.get("request_id") not in (msg["request_id"], msg["message_id"]):
+            # The host correlates replies with either our request_id
+            # (fake host echoes it) or our message_id (real TcpTransport
+            # answers with request.message_id). Anything else is a
+            # mismatched/replayed response: drop the connection.
+            raise self._connection_lost(
+                DeviceClientError("Response request_id mismatch; dropping connection.")
+            )
         rtype = resp.get("message_type")
         if rtype in (ERROR_TYPE, DATA_ERROR_TYPE):
             detail = resp.get("payload", {})
@@ -721,23 +817,19 @@ class CoreDeviceClient:
         if not self.is_logged_in:
             raise DeviceClientError("Login required before reconnect.")
         old_id = self._connection_id
-        old_token = self._session_token
-        old_lease = self._lease_expires_at
         resp = self.connect()
         reg = self.register()
         if old_id is not None and self._connection_id == old_id:
             raise DeviceClientError("Reconnect did not yield a new connection_id.")
-        if old_token is not None and self._session_token == old_token:
-            raise DeviceClientError("Reconnect did not yield a new session token.")
-        if (
-            old_lease is not None
-            and self._lease_expires_at is not None
-            and self._lease_expires_at == old_lease
-        ):
-            raise DeviceClientError("Reconnect did not yield a new lease.")
         return reg
 
     def close_socket(self) -> None:
+        """Close the transport and drop connection-scoped session state.
+
+        The provisioning credential (login) is preserved so an explicit
+        reconnect remains possible while the app is open; the host-issued
+        session token is always discarded and never reused.
+        """
         sock, self._sock = self._sock, None
         if sock is not None:
             try:
@@ -748,6 +840,7 @@ class CoreDeviceClient:
                 sock.close()
             except Exception:
                 pass
+        self._clear_session()
 
     def shutdown(self) -> None:
         """Full application shutdown: close + destroy ephemeral session."""
@@ -901,8 +994,8 @@ def main(argv: list | None = None) -> int:
             print("WARNING: --ca-file is ignored with --insecure.")
 
     try:
-        hs = client.connect()
         print("Connecting to C.O.R.E...")
+        hs = client.connect()
         print("TLS established" if client.use_tls else "PLAINTEXT (no TLS) — localhost only")
         print("Authentication successful")
         print("Session established")
@@ -915,16 +1008,19 @@ def main(argv: list | None = None) -> int:
                 line = input("core-device> ").strip()
                 if line in ("quit", "exit"):
                     break
-                if line == "discover":
-                    print(client.discover()["payload"])
-                elif line == "reconnect":
-                    client.reconnect()
-                    print(f"Reconnected (connection_id={client.connection_id}).")
-                    _print_session_banner(client)
-                elif line == "session":
-                    _print_session_line(client)
-                elif line:
-                    print("Commands: discover | reconnect | session | quit")
+                try:
+                    if line == "discover":
+                        print(client.discover()["payload"])
+                    elif line == "reconnect":
+                        client.reconnect()
+                        print(f"Reconnected (connection_id={client.connection_id}).")
+                        _print_session_banner(client)
+                    elif line == "session":
+                        _print_session_line(client)
+                    elif line:
+                        print("Commands: discover | reconnect | session | quit")
+                except DeviceClientError as exc:
+                    print(f"ERROR: {exc}")
         except KeyboardInterrupt:
             print()
     except DeviceClientError as exc:

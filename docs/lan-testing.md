@@ -3,7 +3,7 @@
 ## Status
 
 ```text
-AUTOMATED TESTING:       IMPLEMENTED (client suite 78 passed (2026-09-18); host suite 670 passed)
+AUTOMATED TESTING:       IMPLEMENTED (client suite 87 passed; host suite 693 passed)
 PHYSICAL LAN VALIDATION: NOT YET PERFORMED — do not claim otherwise
 ```
 
@@ -32,13 +32,31 @@ server private key is never copied.
 6. On the host: device shows `online`; record persists in `var/rescs.json`
    (identity fields + token; no `connection_id`, no live status).
 7. Quit the client → host marks `offline`, record retained.
- 8. Launch again (login again) → `online`, same `device_id`/`identity_id`,
-    same `join_name`, NEW `connection_id`, NEW 24-hour lease.
- 9. Wrong token → rejected, stays `offline`.
- 10. Client restart → login required again; remembered device (including
-     `join_name`) survives.
- 11. Lease expiry is proven by the automated fake-clock tests, not by
-     waiting 24 hours physically.
+  8. Launch again (login again) → `online`, same `device_id`/`identity_id`,
+     same `join_name`, NEW `connection_id`, NEW 24-hour lease.
+  9. Wrong token → rejected, stays `offline`.
+  10. Client restart → login required again; remembered device (including
+      `join_name`) survives.
+  11. Lease expiry is proven by the automated fake-clock tests, not by
+      waiting 24 hours physically.
+  12. App traffic while online: `discover` lists devices; `DEVICE_INFO`,
+      `DATA_REQUEST`, and `service:<id>` round-trips succeed with
+      correlated `request_id`s; device-to-device send is fire-and-forget
+      (no reply envelope on success — use `wait_reply=True` only when the
+      peer is known to reply).
+  13. Wi-Fi drop mid-session → host marks `offline`, record retained;
+      client `reconnect` (same open app, no re-login) restores `online`
+      with a new `connection_id` + fresh lease.
+  14. Host restart before client reconnect → device restored `offline`,
+      then client reconnect brings it back `online` with the same IDs.
+
+  ## Mac preflight (before the live window)
+
+  - `ping 192.168.1.67` answers (same LAN).
+  - `~/core-client-cert.pem` (public cert copied from the host) exists;
+    never copy `core.key`/`.pfx` to the Mac.
+  - `python3 -m client --help` renders; `--remember` file holds no secrets
+    (verify: no `token`/`session` keys in `~/.risarms-device.json`).
 
  ## Checklist (fill in during the physical test)
 

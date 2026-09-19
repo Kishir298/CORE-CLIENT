@@ -69,6 +69,17 @@ then performs `CORE_HANDSHAKE` → authentication → `DEVICE_REGISTER` and
 reports `online`. Interactive commands: `discover | reconnect | session | quit` (`exit` aliases `quit`).
 `Ctrl+C` disconnects cleanly.
 
+On every launch the client also starts its localhost portal and prints:
+
+```text
+Portal:
+http://127.0.0.1:8766
+```
+
+See `docs/client-portal.md` (dashboard, capabilities, AI local/offload,
+R.E.S.C.S., network, session). Flags: `--no-portal`, `--portal-port`,
+`--location-precision exact|approximate|city|hidden`.
+
 ## Authentication (Option A)
 
  Persistent remembered state (`~/.risarms-device.json`) holds only:

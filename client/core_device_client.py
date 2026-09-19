@@ -886,6 +886,23 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Save remembered device file (no secrets) and exit.",
     )
+    parser.add_argument(
+        "--no-portal",
+        action="store_true",
+        help="Do not start the localhost client portal.",
+    )
+    parser.add_argument(
+        "--portal-port",
+        type=int,
+        default=8766,
+        help="Localhost client portal port (default: 8766).",
+    )
+    parser.add_argument(
+        "--location-precision",
+        default="approximate",
+        choices=["exact", "approximate", "city", "hidden"],
+        help="Coordinate precision shared with other devices (default: approximate).",
+    )
     return parser
 
 
@@ -995,6 +1012,7 @@ def main(argv: list | None = None) -> int:
 
     try:
         print("Connecting to C.O.R.E...")
+        portal = None
         hs = client.connect()
         print("TLS established" if client.use_tls else "PLAINTEXT (no TLS) — localhost only")
         print("Authentication successful")
@@ -1002,6 +1020,20 @@ def main(argv: list | None = None) -> int:
         client.register()
         print("Device registered")
         _print_session_banner(client)
+        if not args.no_portal:
+            try:
+                from client.portal.server import ClientPortal
+
+                portal = ClientPortal(
+                    lambda: client,
+                    port=args.portal_port,
+                    location_precision=args.location_precision,
+                )
+                print()
+                print(f"Portal:\n{portal.start()}")
+            except Exception as exc:
+                print(f"WARNING: client portal failed to start: {exc}")
+                portal = None
         print("Commands: discover | reconnect | session | quit")
         try:
             while True:
@@ -1027,6 +1059,11 @@ def main(argv: list | None = None) -> int:
         print(f"ERROR: {exc}")
         return 1
     finally:
+        if portal is not None:
+            try:
+                portal.stop()
+            except Exception:
+                pass
         client.shutdown()
         print("Disconnected; session token cleared (device remains remembered).")
     return 0

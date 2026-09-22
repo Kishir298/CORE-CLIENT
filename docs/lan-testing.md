@@ -57,8 +57,9 @@ server private key is never copied.
     never copy `core.key`/`.pfx` to the Mac.
   - `python3 -m client --help` renders; `--remember` file holds no secrets
     (verify: no `token`/`session` keys in `~/.risarms-device.json`).
+  - 2026-09-22 preflight (Mac-only): ping 192.168.1.67 FAIL off-LAN / ~/core-client-cert.pem MISSING / python3 -m client --help OK / ~/.risarms-device.json clean no token-session (live window BLOCKED, needs same-LAN + cert + host operator)
 
- ## Checklist (fill in during the physical test)
+  ## Checklist (fill in during the physical test)
 
  - [ ] TLS handshake succeeds Mac → Windows
  - [ ] `CORE_HANDSHAKE_RESPONSE.authenticated == true`

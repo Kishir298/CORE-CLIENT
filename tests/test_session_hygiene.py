@@ -184,3 +184,26 @@ def test_load_remembered_strips_session_token_hyphen(tmp_path):
     client = CoreDeviceClient.load_remembered(path)
     assert client.session_token is None
     assert client.device_id == "mac-01"
+
+
+def test_register_framing_error_drops_connection(tmp_path, monkeypatch):
+    import client.core_device_client as mod
+
+    host = FakeCoreHost()
+    try:
+        client = _make_client(host.port, tmp_path / "d.json")
+        client.connect()
+        monkeypatch.setattr(
+            mod,
+            "_recv_frame",
+            lambda sock: (_ for _ in ()).throw(
+                DeviceClientError("Invalid inbound frame size.")
+            ),
+        )
+        with pytest.raises(DeviceClientError):
+            client.register()
+        assert client._sock is None
+        assert client.session_token is None
+        client.shutdown()
+    finally:
+        host.stop()

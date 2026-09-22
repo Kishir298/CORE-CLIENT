@@ -604,7 +604,7 @@ class CoreDeviceClient:
             _send_frame(self._sock, msg)
             resp = _recv_frame(self._sock)
         except Exception as exc:
-            if self._is_closure_error(exc):
+            if isinstance(exc, DeviceClientError) or self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
             raise
         if resp.get("message_type") in (ERROR_TYPE, DATA_ERROR_TYPE):

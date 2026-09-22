@@ -3,7 +3,7 @@
 ## Status
 
 ```text
-AUTOMATED TESTING:       IMPLEMENTED (client suite 87 passed; host suite 693 passed)
+AUTOMATED TESTING:       IMPLEMENTED (client suite 122 passed, 13 files; host suite see CORE-HOST README)
 PHYSICAL LAN VALIDATION: NOT YET PERFORMED — do not claim otherwise
 ```
 

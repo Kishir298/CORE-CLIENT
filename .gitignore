@@ -17,8 +17,6 @@ env/
 /Include/
 /pyvenv.cfg
 /Scripts/
-!scripts/
-!scripts/**
 
 # IDE
 .vscode/

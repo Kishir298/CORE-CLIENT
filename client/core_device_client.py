@@ -34,6 +34,7 @@ import os
 import socket
 import ssl
 import struct
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -142,10 +143,22 @@ def _new_message(
 
 
 def _send_frame(sock: socket.socket, message: dict) -> None:
-    data = json.dumps(message).encode("utf-8")
+    try:
+        data = json.dumps(message).encode("utf-8")
+    except TypeError as exc:
+        raise DeviceClientError(f"Outbound message not JSON-serializable: {exc}") from exc
     if not data or len(data) > MAX_FRAME_SIZE:
         raise DeviceClientError("Outbound frame size invalid.")
     sock.sendall(struct.pack("!I", len(data)) + data)
+
+
+def _redact_token_for_display(token: str | None) -> str:
+    """Redacted session-token display (never the full secret)."""
+    if not token:
+        return "<none>"
+    if len(token) <= 8:
+        return "ACTIVE (redacted)"
+    return f"ACTIVE ({token[:4]}...{token[-4:]})"
 
 
 def _recv_exact(sock: socket.socket, n: int) -> bytes:
@@ -232,6 +245,8 @@ class CoreDeviceClient:
         self._connected_at: str | None = None
         self._lease_expires_at: str | None = None
         self._lease_duration_seconds: int | None = None
+        # Serialize send/recv so concurrent threads cannot interleave frames.
+        self._io_lock = threading.Lock()
 
     # -- remembered device (persistent, no secrets) --
     def remembered_state(self) -> dict:
@@ -422,7 +437,10 @@ class CoreDeviceClient:
         if not self._lease_expires_at:
             return None
         try:
-            expiry = datetime.fromisoformat(self._lease_expires_at)
+            raw = self._lease_expires_at.strip()
+            if raw.endswith("Z"):
+                raw = raw[:-1] + "+00:00"
+            expiry = datetime.fromisoformat(raw)
         except Exception:
             return None
         if expiry.tzinfo is None:
@@ -543,9 +561,10 @@ class CoreDeviceClient:
             },
             identity_id=self.identity_id,
         )
-        _send_frame(sock, hello)
         try:
-            resp = _recv_frame(sock)
+            with self._io_lock:
+                _send_frame(sock, hello)
+                resp = _recv_frame(sock)
         except Exception:
             self.close_socket()
             raise
@@ -601,8 +620,9 @@ class CoreDeviceClient:
             identity_id=self.identity_id,
         )
         try:
-            _send_frame(self._sock, msg)
-            resp = _recv_frame(self._sock)
+            with self._io_lock:
+                _send_frame(self._sock, msg)
+                resp = _recv_frame(self._sock)
         except Exception as exc:
             if isinstance(exc, DeviceClientError) or self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
@@ -615,6 +635,8 @@ class CoreDeviceClient:
             )
         if resp.get("message_type") != REGISTER_RESPONSE_TYPE:
             raise DeviceClientError("Unexpected response to DEVICE_REGISTER.")
+        if not isinstance(resp.get("payload"), dict) or resp["payload"].get("registered") is not True:
+            raise DeviceClientError("Registration not confirmed by C.O.R.E. host.")
         self._registered = True
         if isinstance(resp.get("payload"), dict):
             self._track_session(resp["payload"])
@@ -714,10 +736,13 @@ class CoreDeviceClient:
             )
             msg["request_id"] = str(uuid.uuid4())
             try:
-                _send_frame(self._sock, msg)
+                with self._io_lock:
+                    _send_frame(self._sock, msg)
             except Exception as exc:
                 if self._is_closure_error(exc):
                     raise self._connection_lost(exc) from exc
+                if isinstance(exc, DeviceClientError):
+                    raise
                 raise DeviceClientError(
                     f"Application request failed: {exc}"
                 ) from exc
@@ -774,8 +799,9 @@ class CoreDeviceClient:
                 sock.settimeout(wait)
             except Exception:
                 pass
-            _send_frame(sock, msg)
-            resp = _recv_frame(sock)
+            with self._io_lock:
+                _send_frame(sock, msg)
+                resp = _recv_frame(sock)
         except Exception as exc:
             if self._is_closure_error(exc):
                 raise self._connection_lost(exc) from exc
@@ -925,7 +951,7 @@ def _print_session_banner(client: "CoreDeviceClient") -> None:
     print(row("Join Name:", summary["join_name"]))
     print(row("Status:", summary["status"]))
     print("║                                              ║")
-    print(row("Session Token:", summary["session_token"] or "<none>"))
+    print(row("Session Token:", _redact_token_for_display(summary["session_token"])))
     print("║                                              ║")
     print(row("Connection ID:", summary["connection_id"] or "<none>"))
     duration = summary["lease_duration_seconds"]
@@ -939,7 +965,7 @@ def _print_session_line(client: "CoreDeviceClient") -> None:
     summary = client.session_summary()
     print(f"Status: {summary['status']}")
     print(f"Connection ID: {summary['connection_id']}")
-    print(f"Session Token: {summary['session_token']}")
+    print(f"Session Token: {_redact_token_for_display(summary['session_token'])}")
     print(f"Lease: {summary['lease_remaining'] or '?'} remaining")
     print(f"Expires: {summary['lease_expires_at']}")
 
@@ -1037,7 +1063,11 @@ def main(argv: list | None = None) -> int:
         print("Commands: discover | reconnect | session | quit")
         try:
             while True:
-                line = input("core-device> ").strip()
+                try:
+                    line = input("core-device> ").strip()
+                except EOFError:
+                    print()
+                    break
                 if line in ("quit", "exit"):
                     break
                 try:
@@ -1053,7 +1083,7 @@ def main(argv: list | None = None) -> int:
                         print("Commands: discover | reconnect | session | quit")
                 except DeviceClientError as exc:
                     print(f"ERROR: {exc}")
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, EOFError):
             print()
     except DeviceClientError as exc:
         print(f"ERROR: {exc}")

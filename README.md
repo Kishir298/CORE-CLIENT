@@ -8,7 +8,7 @@
 C.O.R.E.-CLIENT is the **independent external-device client** for
 **C.O.R.E.-HOST**, the Windows-hosted C.O.R.E. server/runtime
 (`Kishir298/CORE`, to be renamed `Kishir298/CORE-HOST`).
-Naming: `CORE-CLIENT` is the directory, `client` is the Python import package (`python3 -m client`), and `core-device` is the CLI program name.
+Naming: `CORE-CLIENT` is the directory, `client` is the Python import package; run it as `python3 -m client`.
 
 Relationship:
 

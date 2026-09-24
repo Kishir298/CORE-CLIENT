@@ -187,10 +187,16 @@ was needed on the host — these reuse the existing `DEVICE_DISCOVER` /
 ```text
 CORE-CLIENT/
 ├── client/                  # stdlib-only device client (Option A login)
+│   ├── portal/              # localhost dashboard (127.0.0.1)
+│   ├── capabilities.py      # capability detection
+│   ├── geo.py               # location model
+│   └── models.py            # model profiles
 ├── tests/                   # stdlib-only suite (fake in-process host)
+│   └── fake_host.py         # in-process fake host
 ├── docs/
 │   ├── architecture.md
 │   ├── setup.md
+│   ├── client-portal.md
 │   └── lan-testing.md
 ├── runtime/certificates/    # runtime trust input (public certs only, git-ignored)
 ├── pyproject.toml

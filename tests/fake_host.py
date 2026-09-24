@@ -147,7 +147,11 @@ class FakeCoreHost:
         # Short read timeout so a server-side forced close (lease expiry)
         # is noticed promptly even when the peer is idle: BSD/macOS does
         # not reliably wake a thread blocked in recv() on close() alone.
-        conn.settimeout(0.5)
+        # stop()/force_close() may close the fd first — exit quietly then.
+        try:
+            conn.settimeout(0.5)
+        except OSError:
+            return
         try:
             while not self._stop.is_set():
                 try:

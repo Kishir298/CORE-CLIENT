@@ -1,6 +1,6 @@
 # Client Portal (v0.4.0)
 
-> Note: portal doc is at v0.4.0, ahead of package version 0.3.0 in `pyproject.toml` (package bump pending).
+> Note: portal v0.4.0 aligned with package 0.4.0.
 
 Localhost dashboard for every C.O.R.E.-CLIENT device. Works offline:
 local sections always render; remote sections report

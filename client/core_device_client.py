@@ -1,4 +1,4 @@
-"""Minimal external-device client for C.O.R.E. v0.3.0.
+"""Minimal external-device client for C.O.R.E. v0.4.0.
 
 Stdlib only — intentionally does NOT import internal ``core`` modules so the
 Mac behaves as a true external device over real LAN TCP + TLS.
@@ -39,7 +39,7 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-PROTOCOL_VERSION = "0.3.0"
+PROTOCOL_VERSION = "0.4.0"
 HANDSHAKE_TYPE = "CORE_HANDSHAKE"
 HANDSHAKE_RESPONSE_TYPE = "CORE_HANDSHAKE_RESPONSE"
 REGISTER_TYPE = "DEVICE_REGISTER"

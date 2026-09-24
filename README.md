@@ -1,6 +1,6 @@
 # C.O.R.E.-CLIENT — External-Device Client
 
-**Version:** `0.3.0` (protocol-compatible with C.O.R.E.-HOST v0.3.0)
+**Version:** `0.4.0` (protocol-compatible with C.O.R.E.-HOST v0.4.0; wire negotiates 0.3.0–0.4.0)
 **Status:** **Implementation Complete · Physical LAN Validation Pending**
 **Platform:** macOS / Linux / any Python `>=3.10` device
 **R.I.S.A.R.M.S. subsystem:** C.O.R.E. client

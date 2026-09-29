@@ -245,7 +245,6 @@ def test_shutdown_login_rotates_token(tmp_path):
 
 
 def test_expired_token_not_silently_reused(tmp_path):
-    from client.core_device_client import DeviceClientError
 
     host = FakeCoreHost()
     try:

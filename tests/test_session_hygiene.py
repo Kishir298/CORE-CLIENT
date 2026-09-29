@@ -7,9 +7,9 @@ import json
 import pytest
 
 from client.core_device_client import (
-    _recv_frame,
     CoreDeviceClient,
     DeviceClientError,
+    _recv_frame,
 )
 
 from .fake_host import FakeCoreHost

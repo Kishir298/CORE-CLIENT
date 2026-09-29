@@ -12,11 +12,11 @@ import socket
 import pytest
 
 from client.core_device_client import (
+    CoreDeviceClient,
+    DeviceClientError,
     _new_message,
     _recv_frame,
     _send_frame,
-    CoreDeviceClient,
-    DeviceClientError,
 )
 
 from .fake_host import FakeCoreHost

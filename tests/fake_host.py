@@ -112,7 +112,7 @@ class FakeCoreHost:
         while not self._stop.is_set():
             try:
                 conn, _ = self._listener.accept()
-            except socket.timeout:
+            except TimeoutError:
                 continue
             except OSError:
                 break
@@ -156,7 +156,7 @@ class FakeCoreHost:
             while not self._stop.is_set():
                 try:
                     msg = recv_frame(conn)
-                except socket.timeout:
+                except TimeoutError:
                     continue
                 except (ConnectionError, OSError, ValueError):
                     break

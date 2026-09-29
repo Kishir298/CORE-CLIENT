@@ -21,7 +21,7 @@ from urllib.parse import urlparse
 from .. import capabilities as capability_probe
 from .. import geo
 from .. import models as model_policy
-from .models import HOST_OFFLINE, envelope, redact, session_view
+from .models import HOST_OFFLINE, envelope, session_view
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8766
@@ -540,7 +540,8 @@ class ClientPortal:
                     return {}
 
             def _query(self) -> dict:
-                from urllib.parse import parse_qsl, urlparse as _urlparse
+                from urllib.parse import parse_qsl
+                from urllib.parse import urlparse as _urlparse
 
                 return dict(parse_qsl(_urlparse(self.path).query or ""))
 

@@ -280,7 +280,7 @@ class CoreDeviceClient:
         cls,
         device_file: Path | str | None = None,
         **overrides,
-    ) -> "CoreDeviceClient":
+    ) -> CoreDeviceClient:
         path = Path(device_file) if device_file else default_device_file()
         try:
             state = json.loads(path.read_text(encoding="utf-8"))
@@ -874,7 +874,7 @@ class CoreDeviceClient:
         self.logout()
 
     # -- context manager: session lives only inside the block --
-    def __enter__(self) -> "CoreDeviceClient":
+    def __enter__(self) -> CoreDeviceClient:
         return self
 
     def __exit__(self, *exc) -> None:
@@ -932,7 +932,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _print_session_banner(client: "CoreDeviceClient") -> None:
+def _print_session_banner(client: CoreDeviceClient) -> None:
     """Display the active in-memory session (DISPLAYED, never persisted)."""
     summary = client.session_summary()
     bar = "╔" + "═" * 46 + "╗"
@@ -961,7 +961,7 @@ def _print_session_banner(client: "CoreDeviceClient") -> None:
     print(end)
 
 
-def _print_session_line(client: "CoreDeviceClient") -> None:
+def _print_session_line(client: CoreDeviceClient) -> None:
     summary = client.session_summary()
     print(f"Status: {summary['status']}")
     print(f"Connection ID: {summary['connection_id']}")

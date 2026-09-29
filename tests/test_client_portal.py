@@ -8,11 +8,9 @@ import urllib.request
 
 import pytest
 
-from client.capabilities import evaluate_class
+from client.core_device_client import CoreDeviceClient
 from client.portal.models import envelope, redact, session_view
 from client.portal.server import ClientPortal
-from client.core_device_client import CoreDeviceClient
-
 from tests.fake_host import FakeCoreHost
 
 SECRET_MARKERS = ("s3cr3t-token", "provisioning-credential", "PRIVATE-KEY")

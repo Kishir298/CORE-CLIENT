@@ -67,3 +67,17 @@ runtime/*
 # Tool backups
 opencode.json.backup
 .aider*
+
+# Stagnant artifacts
+.pytest_cache/
+__pycache__/
+AUDIT_REPORT.md
+temp_*.txt
+test_output.txt
+test_results.txt
+
+# Sensitive files
+tls/
+*.pem
+*.key
+*.crt

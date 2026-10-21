@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "core-client"
+version = "0.4.0"
+description = "C.O.R.E. external-device client (Mac / R.I.S.A.R.M.S. devices over TCP+TLS)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+core-client = "client.entrypoint:main"
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+monitoring = ["prometheus-client>=0.20", "fastapi>=0.110"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["client*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

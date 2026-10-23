@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "core-host",
+      "doctor"
+    ],
+    "cwd": "/tmp",
+    "returncode": 0,
+    "stdout": "C.O.R.E. host command is installed.\nPortal data: /Users/chhavitayalpatil/.local/share/RISARMS/CORE/web\nPortal settings: first-run setup required\nLocal URL: http://127.0.0.1:8780\nExternal service dependencies and models require separate verification.\n"
+  },
+  {
+    "command": [
+      "core-host",
+      "--help"
+    ],
+    "cwd": "/tmp",
+    "returncode": 0,
+    "stdout": "usage: core-host [-h] [--data DATA] [--config CONFIG] [--port PORT]\n                 [--no-browser]\n                 [{start,doctor}]\n\nRun the C.O.R.E. host and authenticated portal.\n\npositional arguments:\n  {start,doctor}\n\noptions:\n  -h, --help       show this help message and exit\n  --data DATA      Persistent portal data directory.\n  --config CONFIG  Optional native CORE YAML configuration.\n  --port PORT\n  --no-browser\n"
+  },
+  {
+    "command": [
+      "core-client",
+      "doctor"
+    ],
+    "cwd": "/tmp",
+    "returncode": 0,
+    "stdout": "C.O.R.E. client command is installed.\nPortal URL: http://127.0.0.1:8780\nSettings: /Users/chhavitayalpatil/Library/Application Support/RISARMS/CORE-CLIENT/portal-url.txt\nNative client: core-client native --help\n"
+  },
+  {
+    "command": [
+      "core-client",
+      "native",
+      "--help"
+    ],
+    "cwd": "/tmp",
+    "returncode": 0,
+    "stdout": "usage: core-device [-h] [--host HOST] [--port PORT]\n                   [--device-file DEVICE_FILE] [--device-id DEVICE_ID]\n                   [--device-name DEVICE_NAME] [--join-name JOIN_NAME]\n                   [--device-type DEVICE_TYPE] [--platform PLATFORM]\n                   [--capabilities CAPABILITIES] [--token TOKEN] [--no-tls]\n                   [--ca-file CA_FILE] [--insecure] [--remember] [--no-portal]\n                   [--portal-port PORTAL_PORT]\n                   [--location-precision {exact,approximate,city,hidden}]\n\nExternal C.O.R.E. device client (Option A: remembered device, login each\nlaunch).\n\noptions:\n  -h, --help            show this help message and exit\n  --host HOST           Windows C.O.R.E. host/IP.\n  --port PORT           C.O.R.E. TCP port (e.g. 5000).\n  --device-file DEVICE_FILE\n  --device-id DEVICE_ID\n  --device-name DEVICE_NAME\n  --join-name JOIN_NAME\n                        Stable human-readable join name (generated once if\n                        omitted).\n  --device-type DEVICE_TYPE\n  --platform PLATFORM\n  --capabilities CAPABILITIES\n                        Comma-separated list.\n  --token TOKEN         Login token (else prompted).\n  --no-tls              Use plaintext (localhost tests only; never for LAN).\n  --ca-file CA_FILE     Custom CA/server cert for TLS verify.\n  --insecure            Skip TLS cert verification (self-signed LAN certs;\n                        explicit only).\n  --remember            Save remembered device file (no secrets) and exit.\n  --no-portal           Do not start the localhost client portal.\n  --portal-port PORTAL_PORT\n                        Localhost client portal port (default: 8766).\n  --location-precision {exact,approximate,city,hidden}\n                        Coordinate precision shared with other devices\n                        (default: approximate).\n"
+  }
+]

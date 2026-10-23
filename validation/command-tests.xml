@@ -1,0 +1,2463 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="57" skipped="0" tests="154" time="3.918" timestamp="2026-10-20T18:49:15.437118+04:00" hostname="Rishiks-MacBook-Pro.local"><testcase classname="tests.test_app_messaging" name="test_device_info_roundtrip" time="0.005"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_device_info_roundtrip0')
+
+    def test_device_info_roundtrip(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c1b9be0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_device_info_unknown_device" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_device_info_unknown_devic0')
+
+    def test_device_info_unknown_device(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c1c6490&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_device_info_requires_register" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_device_info_requires_regi0')
+
+    def test_device_info_requires_register(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c1c7110&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_service_request_roundtrip" time="0.004"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_service_request_roundtrip0')
+
+    def test_service_request_roundtrip(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c1f2060&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_service_request_validation" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_service_request_validatio0')
+
+    def test_service_request_validation(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:95: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c1f3950&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_data_request_roundtrip" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_data_request_roundtrip0')
+
+    def test_data_request_roundtrip(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c217530&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_data_request_missing_type_rejected" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_data_request_missing_type0')
+
+    def test_data_request_missing_type_rejected(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c340f30&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_generic_request_ids_and_envelope" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_generic_request_ids_and_e0')
+
+    def test_generic_request_ids_and_envelope(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:128: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3417b0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_request_invalid_args_rejected" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_request_invalid_args_reje0')
+
+    def test_request_invalid_args_rejected(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2ef750&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_request_host_error_surfaced" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_request_host_error_surfac0')
+
+    def test_request_host_error_surfaced(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:154: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2eee50&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_request_after_close_marks_disconnected" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_request_after_close_marks0')
+
+    def test_request_after_close_marks_disconnected(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e2c60&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_request_requires_reconnect_after_shutdown" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_request_requires_reconnec0')
+
+    def test_request_requires_reconnect_after_shutdown(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e1220&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_device_to_device_relay_strips_session_token" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_device_to_device_relay_st0')
+
+    def test_device_to_device_relay_strips_session_token(tmp_path):
+&gt;       host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c278130&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = {'mac-02': 'secret-mac-02'}
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_device_to_device_unknown_device_rejected" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_device_to_device_unknown_0')
+
+    def test_device_to_device_unknown_device_rejected(tmp_path):
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c27baf0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_correlated_response_dispatch_request_id" time="0.004"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_correlated_response_dispa0')
+
+    def test_correlated_response_dispatch_request_id(tmp_path):
+        """Response correlated by request_id (fake host echoes request_id)."""
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c230460&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_correlated_response_dispatch_message_id" time="0.007"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_correlated_response_dispa1')
+
+    def test_correlated_response_dispatch_message_id(tmp_path):
+        """Response correlated by message_id (real TcpTransport answers with request.message_id)."""
+&gt;       host, client = _connected(tmp_path)
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:261: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_app_messaging.py:41: in _connected
+    host = FakeCoreHost()
+           ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2f0f50&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_unsolicited_message_queued_separately" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_unsolicited_message_queue0')
+
+    def test_unsolicited_message_queued_separately(tmp_path):
+        """Peer-relayed messages go to _unsolicited_queue, not response queue."""
+&gt;       host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:277: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2f1550&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = {'mac-02': 'secret-mac-02'}
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_drain_unsolicited_queue" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_drain_unsolicited_queue0')
+
+    def test_drain_unsolicited_queue(tmp_path):
+        """Application can drain unsolicited messages via drain_unsolicited()."""
+&gt;       host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:311: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e5bd0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = {'mac-02': 'secret-mac-02'}
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_app_messaging" name="test_unsolicited_does_not_interfere_with_correlated_response" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_unsolicited_does_not_inte0')
+
+    def test_unsolicited_does_not_interfere_with_correlated_response(tmp_path):
+        """Unsolicited messages don't block or corrupt correlated responses."""
+&gt;       host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_app_messaging.py:341: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e6620&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = {'mac-02': 'secret-mac-02'}
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_audit_regressions" name="test_client_portal_refuses_remote_bind" time="0.002" /><testcase classname="tests.test_audit_regressions" name="test_get_rejects_rebinding_host" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_dashboard_helper_sets_csrf_header" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_mutation_rejects_different_port" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_record_get_uses_host_contract" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_tls_setup_failure_closes_raw_socket" time="0.002" /><testcase classname="tests.test_audit_regressions" name="test_partial_frame_survives_read_timeout" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_oversized_or_invalid_frame_clears_connection" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_bad_remembered_values_are_client_errors" time="0.004" /><testcase classname="tests.test_audit_regressions" name="test_untagged_model_does_not_match_arbitrary_version" time="0.001" /><testcase classname="tests.test_audit_regressions" name="test_ai_offload_includes_device_identity" time="0.002" /><testcase classname="tests.test_audit_regressions" name="test_ai_offload_reports_service_failure" time="0.002" /><testcase classname="tests.test_auth" name="test_login_requires_nonempty_token" time="0.002" /><testcase classname="tests.test_auth" name="test_connect_requires_login" time="0.002" /><testcase classname="tests.test_auth" name="test_login_session_cleared_on_shutdown" time="0.003" /><testcase classname="tests.test_auth" name="test_logout_preserves_remembered_device" time="0.002" /><testcase classname="tests.test_auth" name="test_wrong_token_rejected_stays_unregistered" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_wrong_token_rejected_stay0')
+
+    def test_wrong_token_rejected_stays_unregistered(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_auth.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3bb1d0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_auth" name="test_correct_token_authenticates" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_correct_token_authenticat0')
+
+    def test_correct_token_authenticates(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_auth.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e71d0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_capabilities" name="test_high_end_workstation" time="0.003" /><testcase classname="tests.test_capabilities" name="test_apple_silicon_laptop" time="0.001" /><testcase classname="tests.test_capabilities" name="test_nvidia_workstation_mid_ram" time="0.001" /><testcase classname="tests.test_capabilities" name="test_medium_laptop" time="0.001" /><testcase classname="tests.test_capabilities" name="test_low_end_cpu_only" time="0.001" /><testcase classname="tests.test_capabilities" name="test_unknown_device" time="0.001" /><testcase classname="tests.test_capabilities" name="test_custom_policy_thresholds" time="0.001" /><testcase classname="tests.test_capabilities" name="test_ollama_unreachable_is_unknown" time="0.001" /><testcase classname="tests.test_capabilities" name="test_model_missing_is_unavailable" time="0.001" /><testcase classname="tests.test_capabilities" name="test_model_installed_and_fits" time="0.001" /><testcase classname="tests.test_capabilities" name="test_model_too_large_for_device" time="0.001" /><testcase classname="tests.test_capabilities" name="test_unknown_model_is_unknown" time="0.001" /><testcase classname="tests.test_capabilities" name="test_find_model_exact_match" time="0.002" /><testcase classname="tests.test_capabilities" name="test_detect_capabilities_never_raises" time="0.049" /><testcase classname="tests.test_cli" name="test_help_exits_zero" time="0.006" /><testcase classname="tests.test_cli" name="test_parser_defaults" time="0.001" /><testcase classname="tests.test_cli" name="test_remember_saves_without_secrets" time="0.006" /><testcase classname="tests.test_cli" name="test_remember_requires_device_id" time="0.004" /><testcase classname="tests.test_cli" name="test_missing_remembered_device_errors" time="0.003" /><testcase classname="tests.test_cli" name="test_missing_token_errors" time="0.006" /><testcase classname="tests.test_cli" name="test_full_cli_login_flow" time="0.004"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_full_cli_login_flow0')
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x10c1f3820&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10c3acc30&gt;
+
+    def test_full_cli_login_flow(tmp_path, capsys, monkeypatch):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_cli.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3066d0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_cli" name="test_cli_tls_flags_accepted" time="0.004" /><testcase classname="tests.test_client_portal" name="test_portal_binds_localhost" time="0.003"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_portal_binds_localhost0')
+
+    @pytest.fixture()
+    def offline_portal(tmp_path):
+        client = CoreDeviceClient(
+            host="127.0.0.1",
+            port=59999,
+            device_id="mac-01",
+            device_name="MacBook",
+            device_file=tmp_path / "d.json",
+            use_tls=False,
+            timeout=1.0,
+        )
+        # Dead Ollama port too: keeps the offline AI path fast and deterministic.
+        portal = ClientPortal(lambda: client, port=0, ollama_port=59998)
+&gt;       portal.start()
+
+tests/test_client_portal.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+client/portal/server.py:127: in start
+    self._server = server_type((self.host, self.port), handler)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/http/server.py:148: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;http.server.ThreadingHTTPServer object at 0x10c1bae40&gt;
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Since Linux 6.12.9, SO_REUSEPORT is not allowed
+        # on other address families than AF_INET/AF_INET6.
+        if (
+            self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT")
+            and self.address_family in (socket.AF_INET, socket.AF_INET6)
+        ):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+&gt;       self.socket.bind(self.server_address)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:478: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_index_serves_html" time="0.002"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_index_serves_html0')
+
+    @pytest.fixture()
+    def offline_portal(tmp_path):
+        client = CoreDeviceClient(
+            host="127.0.0.1",
+            port=59999,
+            device_id="mac-01",
+            device_name="MacBook",
+            device_file=tmp_path / "d.json",
+            use_tls=False,
+            timeout=1.0,
+        )
+        # Dead Ollama port too: keeps the offline AI path fast and deterministic.
+        portal = ClientPortal(lambda: client, port=0, ollama_port=59998)
+&gt;       portal.start()
+
+tests/test_client_portal.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+client/portal/server.py:127: in start
+    self._server = server_type((self.host, self.port), handler)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/http/server.py:148: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;http.server.ThreadingHTTPServer object at 0x10c1c74d0&gt;
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Since Linux 6.12.9, SO_REUSEPORT is not allowed
+        # on other address families than AF_INET/AF_INET6.
+        if (
+            self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT")
+            and self.address_family in (socket.AF_INET, socket.AF_INET6)
+        ):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+&gt;       self.socket.bind(self.server_address)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:478: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_offline_sections_render" time="0.003"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_offline_sections_render0')
+
+    @pytest.fixture()
+    def offline_portal(tmp_path):
+        client = CoreDeviceClient(
+            host="127.0.0.1",
+            port=59999,
+            device_id="mac-01",
+            device_name="MacBook",
+            device_file=tmp_path / "d.json",
+            use_tls=False,
+            timeout=1.0,
+        )
+        # Dead Ollama port too: keeps the offline AI path fast and deterministic.
+        portal = ClientPortal(lambda: client, port=0, ollama_port=59998)
+&gt;       portal.start()
+
+tests/test_client_portal.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+client/portal/server.py:127: in start
+    self._server = server_type((self.host, self.port), handler)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/http/server.py:148: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;http.server.ThreadingHTTPServer object at 0x10c30c7d0&gt;
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Since Linux 6.12.9, SO_REUSEPORT is not allowed
+        # on other address families than AF_INET/AF_INET6.
+        if (
+            self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT")
+            and self.address_family in (socket.AF_INET, socket.AF_INET6)
+        ):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+&gt;       self.socket.bind(self.server_address)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:478: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_offline_rescs_and_ai_request" time="0.003"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_offline_rescs_and_ai_requ0')
+
+    @pytest.fixture()
+    def offline_portal(tmp_path):
+        client = CoreDeviceClient(
+            host="127.0.0.1",
+            port=59999,
+            device_id="mac-01",
+            device_name="MacBook",
+            device_file=tmp_path / "d.json",
+            use_tls=False,
+            timeout=1.0,
+        )
+        # Dead Ollama port too: keeps the offline AI path fast and deterministic.
+        portal = ClientPortal(lambda: client, port=0, ollama_port=59998)
+&gt;       portal.start()
+
+tests/test_client_portal.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+client/portal/server.py:127: in start
+    self._server = server_type((self.host, self.port), handler)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/http/server.py:148: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;http.server.ThreadingHTTPServer object at 0x10c1f3230&gt;
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Since Linux 6.12.9, SO_REUSEPORT is not allowed
+        # on other address families than AF_INET/AF_INET6.
+        if (
+            self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT")
+            and self.address_family in (socket.AF_INET, socket.AF_INET6)
+        ):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+&gt;       self.socket.bind(self.server_address)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:478: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_online_status_session_devices" time="0.005"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_online_status_session_dev0')
+
+    @pytest.fixture()
+    def online(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_client_portal.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c304e10&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_online_rescs_passthrough" time="0.003"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_online_rescs_passthrough0')
+
+    @pytest.fixture()
+    def online(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_client_portal.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c306830&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_online_reconnect" time="0.005"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_online_reconnect0')
+
+    @pytest.fixture()
+    def online(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_client_portal.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3983c0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_location_and_distance" time="0.005"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_location_and_distance0')
+
+    @pytest.fixture()
+    def online(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_client_portal.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c304310&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_models_redaction_unit" time="0.001" /><testcase classname="tests.test_client_portal" name="test_portal_stop_idempotent" time="0.002"><error message="failed on setup with &quot;PermissionError: [Errno 1] Operation not permitted&quot;">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_portal_stop_idempotent0')
+
+    @pytest.fixture()
+    def offline_portal(tmp_path):
+        client = CoreDeviceClient(
+            host="127.0.0.1",
+            port=59999,
+            device_id="mac-01",
+            device_name="MacBook",
+            device_file=tmp_path / "d.json",
+            use_tls=False,
+            timeout=1.0,
+        )
+        # Dead Ollama port too: keeps the offline AI path fast and deterministic.
+        portal = ClientPortal(lambda: client, port=0, ollama_port=59998)
+&gt;       portal.start()
+
+tests/test_client_portal.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+client/portal/server.py:127: in start
+    self._server = server_type((self.host, self.port), handler)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:457: in __init__
+    self.server_bind()
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/http/server.py:148: in server_bind
+    socketserver.TCPServer.server_bind(self)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;http.server.ThreadingHTTPServer object at 0x10c1f2b10&gt;
+
+    def server_bind(self):
+        """Called by constructor to bind the socket.
+    
+        May be overridden.
+    
+        """
+        if self.allow_reuse_address and hasattr(socket, "SO_REUSEADDR"):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # Since Linux 6.12.9, SO_REUSEPORT is not allowed
+        # on other address families than AF_INET/AF_INET6.
+        if (
+            self.allow_reuse_port and hasattr(socket, "SO_REUSEPORT")
+            and self.address_family in (socket.AF_INET, socket.AF_INET6)
+        ):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+&gt;       self.socket.bind(self.server_address)
+E       PermissionError: [Errno 1] Operation not permitted
+
+/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/socketserver.py:478: PermissionError</error></testcase><testcase classname="tests.test_client_portal" name="test_ai_offload_through_fake_host" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_ai_offload_through_fake_h0')
+
+    def test_ai_offload_through_fake_host(tmp_path):
+        from client.portal.server import ClientPortal
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_client_portal.py:218: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c398e10&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_geo" name="test_haversine_reference_pair" time="0.001" /><testcase classname="tests.test_geo" name="test_haversine_same_point_is_zero" time="0.001" /><testcase classname="tests.test_geo" name="test_haversine_symmetry" time="0.001" /><testcase classname="tests.test_geo" name="test_distance_between_requires_both_sides" time="0.001" /><testcase classname="tests.test_geo" name="test_distance_between_valid_pair" time="0.001" /><testcase classname="tests.test_geo" name="test_format_distance_bands" time="0.001" /><testcase classname="tests.test_geo" name="test_invalid_coordinates_become_unknown" time="0.001" /><testcase classname="tests.test_geo" name="test_valid_location_formatting" time="0.001" /><testcase classname="tests.test_geo" name="test_precision_reduction" time="0.001" /><testcase classname="tests.test_geo" name="test_precision_on_unknown_is_stable" time="0.001" /><testcase classname="tests.test_installed_command" name="test_saved_url_and_open_are_independent_of_cwd" time="0.005" /><testcase classname="tests.test_installed_command" name="test_native_arguments_forwarded" time="0.001" /><testcase classname="tests.test_installed_command" name="test_doctor_does_not_open_browser" time="0.007" /><testcase classname="tests.test_installed_command" name="test_setup_rejects_unsafe_url[http://remote.example.com]" time="0.007" /><testcase classname="tests.test_installed_command" name="test_setup_rejects_unsafe_url[https://user:pass@core.example.com]" time="0.004" /><testcase classname="tests.test_installed_command" name="test_native_platform_detection[Windows-windows]" time="0.002" /><testcase classname="tests.test_installed_command" name="test_native_platform_detection[Darwin-mac]" time="0.002" /><testcase classname="tests.test_installed_command" name="test_native_platform_detection[Linux-linux]" time="0.002" /><testcase classname="tests.test_join_lease" name="test_join_name_generated_default_format" time="0.003" /><testcase classname="tests.test_join_lease" name="test_join_name_explicit_override_kept" time="0.002" /><testcase classname="tests.test_join_lease" name="test_join_name_sanitized_and_bounded" time="0.002" /><testcase classname="tests.test_join_lease" name="test_join_name_never_contains_token" time="0.002" /><testcase classname="tests.test_join_lease" name="test_join_name_remembered_without_secrets" time="0.003" /><testcase classname="tests.test_join_lease" name="test_join_name_stable_across_client_restart" time="0.004" /><testcase classname="tests.test_join_lease" name="test_join_name_sent_at_handshake_and_register" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_join_name_sent_at_handsha0')
+
+    def test_join_name_sent_at_handshake_and_register(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40dff0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_successful_connection_receives_lease" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_successful_connection_rec0')
+
+    def test_successful_connection_receives_lease(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40c260&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_lease_cleared_on_logout_but_join_remains" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_lease_cleared_on_logout_b0')
+
+    def test_lease_cleared_on_logout_but_join_remains(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c398940&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_forced_close_marks_client_disconnected" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_forced_close_marks_client0')
+
+    def test_forced_close_marks_client_disconnected(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c398470&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_expired_connection_cannot_send_messages" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_expired_connection_cannot0')
+
+    def test_expired_connection_cannot_send_messages(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c39b280&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_reconnect_after_expiry_new_lease_same_identity" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_reconnect_after_expiry_ne0')
+
+    def test_reconnect_after_expiry_new_lease_same_identity(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_join_lease.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40c1b0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_join_lease" name="test_cli_remember_saves_join_name" time="0.004" /><testcase classname="tests.test_join_lease" name="test_cli_remember_explicit_join_name" time="0.004" /><testcase classname="tests.test_lifecycle" name="test_full_lifecycle_online_offline_reconnect" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_full_lifecycle_online_off0')
+
+    def test_full_lifecycle_online_offline_reconnect(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_lifecycle.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40f120&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_lifecycle" name="test_shutdown_clears_session_device_stays_remembered" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_shutdown_clears_session_d0')
+
+    def test_shutdown_clears_session_device_stays_remembered(tmp_path):
+        device_file = tmp_path / "device.json"
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_lifecycle.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40cb50&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_lifecycle" name="test_graceful_disconnect_marks_offline" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_graceful_disconnect_marks0')
+
+    def test_graceful_disconnect_marks_offline(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_lifecycle.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40f5f0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_lifecycle" name="test_stale_close_cannot_take_reconnect_offline" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_stale_close_cannot_take_r0')
+
+    def test_stale_close_cannot_take_reconnect_offline(tmp_path):
+        """Reconnect first, then a stale duplicate disconnect must not offline us.
+    
+        Simulates: conn A registers, conn B takes over via reconnect semantics
+        is server-side; here we assert the fake host tracks the live binding.
+        """
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_lifecycle.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40fb70&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_handshake_response_shape" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_handshake_response_shape0')
+
+    def test_handshake_response_shape(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40f1d0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_register_response_shape_and_registry" time="0.005"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_register_response_shape_a0')
+
+    def test_register_response_shape_and_registry(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c307c20&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_register_requires_connect" time="0.003" /><testcase classname="tests.test_protocol" name="test_discover_requires_register" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_discover_requires_registe0')
+
+    def test_discover_requires_register(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3076a0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_duplicate_registration_rejected" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_duplicate_registration_re0')
+
+    def test_duplicate_registration_rejected(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c272990&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_identity_spoofing_rejected" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_identity_spoofing_rejecte0')
+
+    def test_identity_spoofing_rejected(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40e8e0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_unknown_message_yields_device_error" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_unknown_message_yields_de0')
+
+    def test_unknown_message_yields_device_error(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_protocol.py:161: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c40c730&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_protocol" name="test_malformed_frame_rejected_by_client_framing" time="0.003" /><testcase classname="tests.test_remembered_state" name="test_remembered_device_persists_without_secrets" time="0.002" /><testcase classname="tests.test_remembered_state" name="test_remembered_state_shape" time="0.002" /><testcase classname="tests.test_remembered_state" name="test_load_roundtrip_preserves_device" time="0.003" /><testcase classname="tests.test_remembered_state" name="test_load_missing_file_raises" time="0.003" /><testcase classname="tests.test_remembered_state" name="test_load_strips_injected_secrets" time="0.004" /><testcase classname="tests.test_remembered_state" name="test_identity_mismatch_raises" time="0.004" /><testcase classname="tests.test_session_hygiene" name="test_failed_connect_clears_stale_session" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_failed_connect_clears_sta0')
+
+    def test_failed_connect_clears_stale_session(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c389230&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_hygiene" name="test_logout_closes_socket_and_clears" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_logout_closes_socket_and_0')
+
+    def test_logout_closes_socket_and_clears(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c3897b0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_hygiene" name="test_close_socket_clears_session_token" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_close_socket_clears_sessi0')
+
+    def test_close_socket_clears_session_token(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c389d30&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_hygiene" name="test_request_id_mismatch_drops_connection" time="0.005"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_request_id_mismatch_drops0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10c278670&gt;
+
+    def test_request_id_mismatch_drops_connection(tmp_path, monkeypatch):
+        import client.core_device_client as mod
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38a200&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_hygiene" name="test_send_to_device_fire_and_forget" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_send_to_device_fire_and_f0')
+
+    def test_send_to_device_fire_and_forget(tmp_path):
+&gt;       host = FakeCoreHost(peers={"mac-02": "secret-mac-02"})
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38a830&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = {'mac-02': 'secret-mac-02'}
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_hygiene" name="test_load_remembered_rejects_unknown_fields" time="0.003" /><testcase classname="tests.test_session_hygiene" name="test_load_remembered_rejects_corrupt_json" time="0.003" /><testcase classname="tests.test_session_hygiene" name="test_load_remembered_rejects_missing_required_fields" time="0.003" /><testcase classname="tests.test_session_hygiene" name="test_load_remembered_strips_session_token_hyphen" time="0.002" /><testcase classname="tests.test_session_hygiene" name="test_register_framing_error_drops_connection" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_register_framing_error_dr0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10c377ba0&gt;
+
+    def test_register_framing_error_drops_connection(tmp_path, monkeypatch):
+        import client.core_device_client as mod
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_hygiene.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38b6a0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_session_secrets_never_in_remembered_file" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_session_secrets_never_in_0')
+
+    def test_session_secrets_never_in_remembered_file(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c2e71d0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_login_connect_receives_session_then_shutdown_clears" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_login_connect_receives_se0')
+
+    def test_login_connect_receives_session_then_shutdown_clears(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38a360&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_quit_clears_session_but_remembers_device" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_quit_clears_session_but_r0')
+
+    def test_quit_clears_session_but_remembers_device(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c389d30&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_session_summary_shows_token_and_lease" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_session_summary_shows_tok0')
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x10c215d90&gt;
+
+    def test_session_summary_shows_token_and_lease(tmp_path, capsys):
+        import client.core_device_client as cli_mod
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38b5f0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_session_command_output" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_session_command_output0')
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x10c340e20&gt;
+
+    def test_session_command_output(tmp_path, capsys):
+        import client.core_device_client as cli_mod
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:140: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38bd80&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_lease_countdown_format" time="0.001" /><testcase classname="tests.test_session_token" name="test_lease_states" time="0.001"><failure message="PermissionError: [Errno 1] Operation not permitted">def test_lease_states():
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c400730&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_forced_close_clears_session_and_requires_login" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_forced_close_clears_sessi0')
+
+    def test_forced_close_clears_session_and_requires_login(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c38a830&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_reconnect_rotates_token_connection_and_lease" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_reconnect_rotates_token_c0')
+
+    def test_reconnect_rotates_token_connection_and_lease(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:211: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c400890&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_shutdown_login_rotates_token" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_shutdown_login_rotates_to0')
+
+    def test_shutdown_login_rotates_token(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:232: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c400e10&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_session_token" name="test_expired_token_not_silently_reused" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_expired_token_not_silentl0')
+
+    def test_expired_token_not_silently_reused(tmp_path):
+    
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_session_token.py:249: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c401390&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_tls" name="test_tls_enabled_by_default" time="0.002" /><testcase classname="tests.test_tls" name="test_context_requires_cert_by_default" time="0.040" /><testcase classname="tests.test_tls" name="test_insecure_mode_is_explicit_opt_in" time="0.003" /><testcase classname="tests.test_tls" name="test_minimum_tls_version_12" time="0.029" /><testcase classname="tests.test_tls" name="test_invalid_ca_file_surfaces_error" time="0.003"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_invalid_ca_file_surfaces_0')
+
+    def test_invalid_ca_file_surfaces_error(tmp_path):
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_tls.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c402410&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_tls" name="test_weak_tls_version_rejected" time="0.004" /><testcase classname="tests.test_tls" name="test_no_silent_plaintext_downgrade" time="0.002"><failure message="PermissionError: [Errno 1] Operation not permitted">tmp_path = PosixPath('/private/var/folders/0z/2c_rnqf5421fl1fkxdr5gfsc0000gn/T/pytest-of-chhavitayalpatil/pytest-8/test_no_silent_plaintext_downg0')
+
+    def test_no_silent_plaintext_downgrade(tmp_path):
+        """A TLS client against a plaintext server must fail, never downgrade."""
+&gt;       host = FakeCoreHost()
+               ^^^^^^^^^^^^^^
+
+tests/test_tls.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;tests.fake_host.FakeCoreHost object at 0x10c402fc0&gt;
+token = 'secret-mac-01', device_id = 'mac-01', lease_seconds = 86400
+peers = None
+
+    def __init__(
+        self,
+        token: str = "secret-mac-01",
+        device_id: str = "mac-01",
+        lease_seconds: int = DEFAULT_LEASE_SECONDS,
+        peers: dict | None = None,
+    ) -&gt; None:
+        self.token = token
+        self.device_id = device_id
+        self.lease_seconds = lease_seconds
+        # Extra provisioned devices {device_id: token} for relay tests.
+        self.peers: dict = dict(peers or {})
+        self.devices: dict = {}
+        self._lock = threading.Lock()
+        self._conns: set = set()
+        self._device_conns: dict = {}
+        self._stop = threading.Event()
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+&gt;       listener.bind(("127.0.0.1", 0))
+E       PermissionError: [Errno 1] Operation not permitted
+
+tests/fake_host.py:92: PermissionError</failure></testcase><testcase classname="tests.test_web_launcher" name="test_valid_portal_url[https://core.example.com]" time="0.001" /><testcase classname="tests.test_web_launcher" name="test_valid_portal_url[http://127.0.0.1:8780]" time="0.001" /><testcase classname="tests.test_web_launcher" name="test_unsafe_portal_url[http://192.168.1.2:8780]" time="0.001" /><testcase classname="tests.test_web_launcher" name="test_unsafe_portal_url[javascript:alert(1)]" time="0.001" /><testcase classname="tests.test_web_launcher" name="test_unsafe_portal_url[https://user:secret@core.example.com]" time="0.001" /><testcase classname="tests.test_web_launcher" name="test_launcher_opens_browser_without_host_code" time="0.002" /></testsuite></testsuites>

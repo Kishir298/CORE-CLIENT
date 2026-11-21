@@ -1,7 +1,9 @@
 name: CI
 on:
   push:
-    branches: [main]
+    # Feature and fix branches are validated on push so a candidate commit has
+    # evidence before a pull request exists.
+    branches: [main, 'feat/**', 'fix/**']
   pull_request:
     branches: [main]
 jobs:
@@ -22,7 +24,7 @@ jobs:
       - name: Run lint
         run: |
           pip install ruff
-          ruff check --select F client tests
+          ruff check --select E9,F,I client tests
       - name: Run tests
         run: |
           python -m pytest -q --tb=no

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=RISARMS Portal
+Comment=CORE desktop workspace with local offline mode
+Exec=core-client app
+Icon=applications-internet
+Terminal=false
+Categories=Network;Utility;
